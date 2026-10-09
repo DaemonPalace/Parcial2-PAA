@@ -1,0 +1,5 @@
+$ git check-ignore -v .env .env.local package-lock.json frontend/package-lock.json .env.example
+.gitignore:2:.env	.env
+.gitignore:3:.env.*	.env.local
+.gitignore:4:!.env.example	.env.example
+(exit 0 — only .env and .env.local are ignored; lockfiles and .env.example are NOT ignored)

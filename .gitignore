@@ -1,0 +1,22 @@
+# Secrets — only .env.example is tracked
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+.pytest_cache/
+
+# Node (lockfiles are tracked on purpose: needed for npm audit)
+node_modules/
+.next/
+dist/
+
+# OS / editor
+.DS_Store
+*~
+.vscode/
+.idea/
