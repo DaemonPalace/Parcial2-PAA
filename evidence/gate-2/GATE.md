@@ -1,6 +1,6 @@
 # Gate G2 — Stage 04 (Scraping + Dask + Prefect ingestion) — Gate report
 
-**Date:** 2026-10-09 (runs logged in UTC, 2026-10-10 00:29–00:53Z) · **Commit:** stage-04 commit (this report is part of it) · **Status:** awaiting approval
+**Date:** 2026-10-09 (runs logged in UTC, 2026-10-10 00:29–00:53Z) · **Commit:** stage-04 commit (this report is part of it) · **Status:** approved 2026-10-09
 
 ## Built
 
@@ -47,4 +47,4 @@
 - **Scraped inventory is simulated.** Scraped offers get 5 seats, rooms or units (ADR-07), because the sites don't publish counts.
 
 ## Approval
-- [ ] Approved by user — date: ____
+- [x] Approved by user — date: 2026-10-09

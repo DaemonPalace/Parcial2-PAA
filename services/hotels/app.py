@@ -1,3 +1,3 @@
-from common.web import make_app
+from common.participant import build_app
 
-app = make_app("hotels")
+app = build_app("hotels", "hotel_offers", "hotel_reservations", "rooms_available", "price_total_cop")

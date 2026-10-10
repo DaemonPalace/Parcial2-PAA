@@ -1,0 +1,77 @@
+
+### flights-svc  offer 101  available at start = 5
+AC-05.1 reserve / cancel in isolation
+  [PASS] reserve -> 201 (201 {'order_id': 'c3f30e81-f4cc-4e8f-9c8e-32f883a9f42a', 'status': 'RESERVED', 'replay': False})
+  [PASS] inventory -1 (now 4)
+  [PASS] cancel -> released (200 {'order_id': 'c3f30e81-f4cc-4e8f-9c8e-32f883a9f42a', 'result': 'released'})
+  [PASS] inventory restored 
+AC-05.2 idempotent replay
+  [PASS] same order_id again -> 200 replay, no second unit (200 {'order_id': '6d84e6f0-c3b8-4a3e-9159-0fb52e11d451', 'status': 'RESERVED', 'replay': True})
+AC-05.3 compensation idempotent and safe without a forward step
+  [PASS] second cancel -> already_cancelled, inventory unchanged ({'order_id': '6d84e6f0-c3b8-4a3e-9159-0fb52e11d451', 'result': 'already_cancelled'})
+  [PASS] cancel before any reserve -> tombstone ({'order_id': 'a92b738f-e57c-4748-8c77-d9570cee464d', 'result': 'tombstone'})
+  [PASS] late reserve after tombstone -> 410, nothing taken (410 {'detail': 'ALREADY_CANCELLED'})
+AC-05.4 two concurrent reserves on the last unit
+  [PASS] 4 fillers leave exactly 1 unit 
+  [PASS] exactly one 201 and one 409 SOLD_OUT ([201, 409])
+  [PASS] inventory 0, never negative 
+  [PASS] all released -> back to start 
+AC-05.5 failure injection modes
+  [PASS] chaos REJECT -> 422, no side effect (422 {'detail': 'REJECTED'})
+  [PASS] chaos TIMEOUT -> client times out at 5 s ... (client timeout)
+  [PASS] ... but the reservation committed (the orphan risk) 
+  [PASS] compensation finds it and releases the unit ({'order_id': '7acbe98f-06fc-40b2-9630-4831d97522ac', 'result': 'released'})
+  [PASS] flaky compensation: 503 first, 200 on retry (503, 200)
+  [PASS] inventory back to start 
+
+### hotels-svc  offer 101  available at start = 5
+AC-05.1 reserve / cancel in isolation
+  [PASS] reserve -> 201 (201 {'order_id': 'b6a554fd-9fb5-4d4a-8ee4-c21e937e2548', 'status': 'RESERVED', 'replay': False})
+  [PASS] inventory -1 (now 4)
+  [PASS] cancel -> released (200 {'order_id': 'b6a554fd-9fb5-4d4a-8ee4-c21e937e2548', 'result': 'released'})
+  [PASS] inventory restored 
+AC-05.2 idempotent replay
+  [PASS] same order_id again -> 200 replay, no second unit (200 {'order_id': '05a5a416-6d54-4718-b78f-cb16da0eacc9', 'status': 'RESERVED', 'replay': True})
+AC-05.3 compensation idempotent and safe without a forward step
+  [PASS] second cancel -> already_cancelled, inventory unchanged ({'order_id': '05a5a416-6d54-4718-b78f-cb16da0eacc9', 'result': 'already_cancelled'})
+  [PASS] cancel before any reserve -> tombstone ({'order_id': 'd6670d8e-057f-49a2-89e7-f24021e44f2b', 'result': 'tombstone'})
+  [PASS] late reserve after tombstone -> 410, nothing taken (410 {'detail': 'ALREADY_CANCELLED'})
+AC-05.4 two concurrent reserves on the last unit
+  [PASS] 4 fillers leave exactly 1 unit 
+  [PASS] exactly one 201 and one 409 SOLD_OUT ([201, 409])
+  [PASS] inventory 0, never negative 
+  [PASS] all released -> back to start 
+AC-05.5 failure injection modes
+  [PASS] chaos REJECT -> 422, no side effect (422 {'detail': 'REJECTED'})
+  [PASS] chaos TIMEOUT -> client times out at 5 s ... (client timeout)
+  [PASS] ... but the reservation committed (the orphan risk) 
+  [PASS] compensation finds it and releases the unit ({'order_id': '00236944-52b6-4969-bdfe-31d0d34c4087', 'result': 'released'})
+  [PASS] flaky compensation: 503 first, 200 on retry (503, 200)
+  [PASS] inventory back to start 
+
+### cars-svc  offer 101  available at start = 5
+AC-05.1 reserve / cancel in isolation
+  [PASS] reserve -> 201 (201 {'order_id': '3db6707b-db60-4efc-afba-daf7451b318a', 'status': 'RESERVED', 'replay': False})
+  [PASS] inventory -1 (now 4)
+  [PASS] cancel -> released (200 {'order_id': '3db6707b-db60-4efc-afba-daf7451b318a', 'result': 'released'})
+  [PASS] inventory restored 
+AC-05.2 idempotent replay
+  [PASS] same order_id again -> 200 replay, no second unit (200 {'order_id': '21910ff0-815b-4c07-b58b-4fe36e10b862', 'status': 'RESERVED', 'replay': True})
+AC-05.3 compensation idempotent and safe without a forward step
+  [PASS] second cancel -> already_cancelled, inventory unchanged ({'order_id': '21910ff0-815b-4c07-b58b-4fe36e10b862', 'result': 'already_cancelled'})
+  [PASS] cancel before any reserve -> tombstone ({'order_id': '807c9940-ed93-4f4c-8f7f-c004ce7f9b55', 'result': 'tombstone'})
+  [PASS] late reserve after tombstone -> 410, nothing taken (410 {'detail': 'ALREADY_CANCELLED'})
+AC-05.4 two concurrent reserves on the last unit
+  [PASS] 4 fillers leave exactly 1 unit 
+  [PASS] exactly one 201 and one 409 SOLD_OUT ([201, 409])
+  [PASS] inventory 0, never negative 
+  [PASS] all released -> back to start 
+AC-05.5 failure injection modes
+  [PASS] chaos REJECT -> 422, no side effect (422 {'detail': 'REJECTED'})
+  [PASS] chaos TIMEOUT -> client times out at 5 s ... (client timeout)
+  [PASS] ... but the reservation committed (the orphan risk) 
+  [PASS] compensation finds it and releases the unit ({'order_id': '99d0ce51-d1f8-459a-b5fc-8d322d95ab51', 'result': 'released'})
+  [PASS] flaky compensation: 503 first, 200 on retry (503, 200)
+  [PASS] inventory back to start 
+
+ALL CHECKS PASSED
