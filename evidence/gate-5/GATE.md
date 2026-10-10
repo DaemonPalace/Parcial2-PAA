@@ -18,7 +18,7 @@
 - `docs/guion-demo.md` (Spanish) is a 12-minute script with timings and exact clicks for the four demo items in brief §6. It also covers 15 min of preparation, a Plan B if a site blocks the scraper, and the available failure simulations.
 
 **Stage 11: architecture document & delivery**
-- **`docs/arquitectura.md` → `docs/arquitectura.pdf`** (Spanish, 15 pages). It covers:
+- **`docs/arquitectura.md` → `docs/arquitectura.pdf`** (Spanish, 12 pages). It covers:
   - Summary and tech mapping
   - Architecture diagram and containers
   - Decision justifications (ADR-01…09)
