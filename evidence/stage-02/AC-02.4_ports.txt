@@ -1,0 +1,15 @@
+# Host-published ports (all bound to 127.0.0.1)
+# "{ 8000 0 tcp}" = port only EXPOSEd on the internal network (PublishedPort 0), not reachable from the host.
+cars-svc: [{ 8000 0 tcp}]
+dask-scheduler: [{127.0.0.1 8787 8787 tcp}]
+flights-svc: [{ 8000 0 tcp}]
+gateway: [{127.0.0.1 8000 8000 tcp}]
+hotels-svc: [{ 8000 0 tcp}]
+orders-billing-svc: [{ 8000 0 tcp}]
+postgres: [{ 5432 0 tcp}]
+prefect-server: [{127.0.0.1 4200 4200 tcp}]
+
+$ ss -ltn | grep -E ":(8000|4200|8787|5432|8786)\b"
+LISTEN 0      4096       127.0.0.1:8787       0.0.0.0:*   
+LISTEN 0      4096       127.0.0.1:4200       0.0.0.0:*   
+LISTEN 0      4096       127.0.0.1:8000       0.0.0.0:*   

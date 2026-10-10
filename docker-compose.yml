@@ -1,0 +1,181 @@
+name: wandersync
+
+networks:
+  wandersync-net:
+
+volumes:
+  pg-data:
+  prefect-data:
+
+x-fastapi-healthcheck: &fastapi-healthcheck
+  test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=2)"]
+  interval: 10s
+  timeout: 5s
+  retries: 5
+  start_period: 10s
+
+x-service: &service
+  networks: [wandersync-net]
+  env_file: .env
+  restart: unless-stopped
+  healthcheck: *fastapi-healthcheck
+
+x-ingestion-image: &ingestion-image
+  build: ./ingestion
+  image: wandersync-ingestion
+  networks: [wandersync-net]
+  env_file: .env
+  restart: unless-stopped
+
+services:
+  # ---------- Infrastructure ----------
+
+  postgres:
+    image: supabase/postgres:15.14.1.170
+    networks: [wandersync-net]
+    environment:
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+    restart: unless-stopped
+
+  prefect-server:
+    image: prefecthq/prefect:3.8.6-python3.12
+    networks: [wandersync-net]
+    command: ["prefect", "server", "start", "--host", "0.0.0.0"]
+    environment:
+      # Browser-side UI must reach the API through the host port.
+      PREFECT_UI_API_URL: http://localhost:4200/api
+    ports:
+      - "127.0.0.1:4200:4200"
+    volumes:
+      - prefect-data:/root/.prefect
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:4200/api/health', timeout=2)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    restart: unless-stopped
+
+  # ---------- Distributed ingestion (Dask + Prefect) ----------
+
+  dask-scheduler:
+    <<: *ingestion-image
+    command: ["dask", "scheduler", "--host", "0.0.0.0", "--port", "8786", "--dashboard-address", ":8787"]
+    ports:
+      - "127.0.0.1:8787:8787"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8787/health', timeout=2)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  dask-worker-1: &dask-worker
+    <<: *ingestion-image
+    command: ["dask", "worker", "tcp://dask-scheduler:8786", "--name", "worker-1", "--nthreads", "1", "--memory-limit", "2GB", "--dashboard-address", ":8789"]
+    shm_size: 1gb # Chromium needs more than Docker's default 64 MB /dev/shm
+    depends_on:
+      dask-scheduler:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8789/health', timeout=2)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  dask-worker-2:
+    <<: *dask-worker
+    command: ["dask", "worker", "tcp://dask-scheduler:8786", "--name", "worker-2", "--nthreads", "1", "--memory-limit", "2GB", "--dashboard-address", ":8789"]
+
+  dask-worker-3:
+    <<: *dask-worker
+    command: ["dask", "worker", "tcp://dask-scheduler:8786", "--name", "worker-3", "--nthreads", "1", "--memory-limit", "2GB", "--dashboard-address", ":8789"]
+
+  ingestion:
+    <<: *ingestion-image
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+      DASK_SCHEDULER_ADDRESS: tcp://dask-scheduler:8786
+      PREFECT_RUNNER_SERVER_ENABLE: "true"
+      PREFECT_RUNNER_SERVER_HOST: 0.0.0.0
+    depends_on:
+      prefect-server:
+        condition: service_healthy
+      dask-worker-1:
+        condition: service_healthy
+      dask-worker-2:
+        condition: service_healthy
+      dask-worker-3:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8080/health', timeout=2)"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  # ---------- Domain microservices ----------
+
+  flights-svc:
+    <<: *service
+    build: { context: ./services, dockerfile: flights/Dockerfile }
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  hotels-svc:
+    <<: *service
+    build: { context: ./services, dockerfile: hotels/Dockerfile }
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  cars-svc:
+    <<: *service
+    build: { context: ./services, dockerfile: cars/Dockerfile }
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  orders-billing-svc:
+    <<: *service
+    build: { context: ./services, dockerfile: orders-billing/Dockerfile }
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+    depends_on:
+      postgres:
+        condition: service_healthy
+      prefect-server:
+        condition: service_healthy
+      flights-svc:
+        condition: service_healthy
+      hotels-svc:
+        condition: service_healthy
+      cars-svc:
+        condition: service_healthy
+
+  # ---------- Entry point ----------
+
+  gateway:
+    <<: *service
+    build: { context: ./services, dockerfile: gateway/Dockerfile }
+    environment:
+      PREFECT_API_URL: http://prefect-server:4200/api
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      prefect-server:
+        condition: service_healthy
+      orders-billing-svc:
+        condition: service_healthy

@@ -1,0 +1,10 @@
+└── Scheduled start time: 2026-10-10 00:08:35 UTC (now)
+└── URL: http://prefect-server:4200/runs/flow-run/1e8ef39c-87bd-4208-8f71-43062efd8617
+● 00:08:37.469 43062efd8617 prefect.flow-run.Pending * sociable-jacamar
+●         .523 43062efd8617 prefect.flow-run.Submitting * sociable-jacamar
+●      :38.955 43062efd8617 prefect.flow-run.Running * sociable-jacamar
+●         .999 43062efd8617 prefect.flow-run.heartbeat * sociable-jacamar
+●      :40.777 43062efd8617 prefect.flow-run.Completed * sociable-jacamar
+Flow run finished successfully in 'Completed'.
+00:08:40.766 | INFO    | Flow run 'sociable-jacamar' - Dask cluster ready: 3 workers
+00:08:41.144 | INFO    | Flow run 'sociable-jacamar' - Finished in state Completed()

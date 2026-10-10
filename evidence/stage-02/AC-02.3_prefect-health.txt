@@ -1,0 +1,4 @@
+$ curl -s localhost:4200/api/health
+true
+$ curl -s -o /dev/null -w "%{http_code}" localhost:4200/  (UI)
+200

@@ -1,0 +1,14 @@
+$ docker compose ps
+SERVICE              IMAGE                                STATUS
+cars-svc             wandersync-cars-svc                  Up 48 seconds (healthy)
+dask-scheduler       wandersync-ingestion                 Up 53 seconds (healthy)
+dask-worker-1        wandersync-ingestion                 Up 47 seconds (healthy)
+dask-worker-2        wandersync-ingestion                 Up 47 seconds (healthy)
+dask-worker-3        wandersync-ingestion                 Up 47 seconds (healthy)
+flights-svc          wandersync-flights-svc               Up 48 seconds (healthy)
+gateway              wandersync-gateway                   Up 32 seconds (healthy)
+hotels-svc           wandersync-hotels-svc                Up 47 seconds (healthy)
+ingestion            wandersync-ingestion                 Up 37 seconds (healthy)
+orders-billing-svc   wandersync-orders-billing-svc        Up 37 seconds (healthy)
+postgres             supabase/postgres:15.14.1.170        Up 53 seconds (healthy)
+prefect-server       prefecthq/prefect:3.8.6-python3.12   Up 53 seconds (healthy)
