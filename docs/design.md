@@ -465,7 +465,7 @@ Full SDL: [`schema.graphql`](schema.graphql). Key points:
 - `Order.flight/hotel/car` resolved through a per-request DataLoader → one catalog call for all orders in `myOrders` (no N+1).
 - Errors as data: payloads carry `userErrors { code message field }`; GraphQL `errors` only for unexpected faults.
 - Chaos (`BookPackageInput.chaos`) is honored only for `ADMIN` sessions (Q-27 a).
-- Query depth limit 6; introspection on (local demo, documented).
+- Abuse limits: at most 10 aliases per operation (an aliased batch of searches would otherwise multiply DB round-trips). No depth limiter: the schema is acyclic (deepest valid query is 4 levels) and graphql-core already caps nested introspection. Introspection stays on (local demo, GraphiQL).
 
 ### 5.2 Internal REST (not published on the host)
 

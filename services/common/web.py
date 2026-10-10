@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name
 
 
 def make_app(name: str) -> FastAPI:
-    app = FastAPI(title=name)
+    app = FastAPI(title=name, docs_url=None, redoc_url=None, openapi_url=None)
 
     @app.get("/health")
     def health(response: Response):

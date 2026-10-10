@@ -117,10 +117,10 @@ Gates merged to 5 (D-007, deadline 2026-10-10). Each stage still gets its own co
 | G1 | 02 | Infrastructure skeleton (Docker Compose) | done | 2026-10-09 (G1 approved) |
 | G1 | 03 | Persistence & GraphQL-native data layer | done | 2026-10-09 (G1 approved) |
 | G2 | 04 | Scraping + Dask + Prefect ingestion | done | 2026-10-09 (G2 approved) |
-| G3 | 05 | Domain microservices | done — **G3 awaiting approval** | |
-| G3 | 06 | SAGA orchestration (Prefect) | done — **G3 awaiting approval** | |
-| G4 | 07 | GraphQL API Gateway | not started | |
-| G4 | 08 | Security by design | not started | |
+| G3 | 05 | Domain microservices | done | 2026-10-10 (G3 approved) |
+| G3 | 06 | SAGA orchestration (Prefect) | done | 2026-10-10 (G3 approved) |
+| G4 | 07 | GraphQL API Gateway | done (in G4) | |
+| G4 | 08 | Security by design | in progress | |
 | G4 | 09 | Frontend | not started | |
 | G5 | 10 | End-to-end verification & demo script | not started | |
 | G5 | 11 | Technical architecture document & delivery | not started | |

@@ -1,0 +1,66 @@
+# Stage 07 + 08 acceptance suite against the live gateway (host -> http://localhost:8000/graphql)
+# $ python3 scripts/test_gateway.py      run 2026-10-10T05:37:33Z
+
+## AC-07.1 one request returns a whole package search (flights + hotels + cars + cheapest combination)
+  [PASS] flights, hotels, cars and cheapestPackage returned (BOG→CTG 2026-10-17→2026-10-20: 3 flights, 3 hotels, 3 cars, cheapest total 909,400 COP)
+    {"flights": [{"id": "2725", "airline": "Wingo", "departAt": "2026-10-17T20:20:00+00:00", "priceCop": 273600, "source": "google_flights"}, {"id": "2726", "airline": "JetSMART", "departAt": "2026-10-17T19:40:00+00:00", "priceCop": 275390, "source": "google_flights"}, {"id": "2716", "airline": "LATAM", "departAt": "2026-10-17T23:05:00+00:00", "priceCop": 290260, "source": "google_flights"}], "hotels": [{"id": "3826", "name": "The Clock Hostel & Suites", "priceTotalCop": 125760, "rating": 8.1, "source": "booking"}, {"id": "3829", "name": "CASA MOVIDA HOSTEL", "priceTotalCop": 138120, "rating": 8.5, "source": "booking"}, {"id": "3835", "name": "República Hostel Cartagena", "priceTotalCop": 148780, "rating": 8.6, "source": "booking"}], "cars": [{"id": "3856", "vendor": "Alamo", "model": "Suzuki Celerio", "priceTotalCop": 510040, "source": "booking_cars"}, {"id": "3857", "vendor": "Alamo", "mod …
+  [PASS] whole search = exactly 1 DB round-trip (1)
+
+## AC-07.3 fewer requested fields -> fewer selected columns (no over-fetching)
+    client asked: flights { priceCop }
+    gateway sent: { flights: flightOffersCollection(first: 3, filter: {origin: {eq: "BOG"}, destination: {eq: "CTG"}, departAt: {gte: "2026-10-17T00:00:00-05:00", lt: "2026-10-18T00:00:00-05:00"}, seatsAvailable: {gt: 0}}, orderBy: [{priceCop: AscNullsLast}]) { edges { node { id priceCop } } } }
+  [PASS] pg_graphql document selects only id + priceCop, no hotels/cars collections 
+
+## AC-07.4 bookPackage starts the Prefect SAGA; `order` follows its state transitions
+  [PASS] bookPackage -> order PENDING immediately ({'id': 'cc9f2973-ab27-43bc-af88-15202f7c491f', 'status': 'PENDING', 'totalCop': 909400})
+  [PASS] order query shows the transitions, ends CONFIRMED (seen PENDING -> RUNNING -> CONFIRMED)
+  [PASS] matching Prefect flow run exists (flow run 'order-cc9f2973-ab27-43bc-af88-15202f7c491f' Completed)
+
+## AC-07.2 no N+1: nested offers for many orders = one round-trip per offer kind
+  [PASS] 3 orders x 3 nested offers resolved with 3 catalog round-trips (not 9) 
+
+## AC-07.5 only /graphql is exposed; abusive nesting is rejected
+  [PASS] GET /docs -> 404 (404)
+  [PASS] GET /openapi.json -> 404 (404)
+  [PASS] GET /admin -> 404 (404)
+  [PASS] GET /orders -> 404 (404)
+  [PASS] deeply nested introspection (cycle through fields/types) -> rejected (Maximum introspection depth exceeded)
+  [PASS] alias batching (20 aliased searches in one request) -> rejected before touching the DB (20 aliases found. Allowed: 10)
+
+## AC-08.1 passwords stored as Argon2id with the configured cost; never plaintext
+  [PASS] hash is $argon2id$v=19$m=65536,t=3,p=4$… (alice-c2db0d@test.co|$argon2id$v=19$m=65536,t=3,p=4$VwZZeERed…)
+  [PASS] plaintext password appears nowhere in accounts.users 
+
+## AC-08.1b register: policy + no user enumeration
+  [PASS] re-register an existing email -> generic INVALID_REGISTRATION (doesn't say 'exists') ({'code': 'INVALID_REGISTRATION', 'message': 'No fue posible registrar la cuenta.', 'field': None})
+
+## AC-08.2 session fixation: the pre-login session id is replaced at login and dies server-side
+    pre-login cookie : ws_session=Zc5vpip4voFP…  (HttpOnly; Max-Age=7200; Path=/; SameSite=lax)
+    post-login cookie: ws_session=AciTT1cK5oFE…
+  [PASS] login issues a NEW session id 
+  [PASS] old pre-login id is no longer valid (me = null, fresh anonymous id issued) 
+  [PASS] new id is authenticated 
+  [PASS] attacker-chosen id is never adopted (server issues its own) 
+  [PASS] cookie flags HttpOnly + SameSite=Lax (HttpOnly; Max-Age=7200; Path=/; SameSite=lax)
+  [PASS] DB stores only sha256(token), never the cookie value 
+
+## AC-08.3 logout invalidates the session server-side
+  [PASS] the logged-out id no longer authenticates 
+
+## AC-08.5 authorization: users only see their own orders; chaos + ingestion are admin-only
+  [PASS] bob asks for alice's order -> null 
+  [PASS] bob's myOrders doesn't include it 
+  [PASS] anonymous bookPackage -> UNAUTHENTICATED 
+  [PASS] traveler's chaos flag is ignored (order still CONFIRMED) 
+  [PASS] traveler triggerIngestion -> FORBIDDEN 
+  [PASS] admin chaos car failure via GraphQL -> CANCELLED with CAR→HOTEL→FLIGHT→PAYMENT (seen PENDING -> RUNNING -> COMPENSATING -> CANCELLED)
+  [PASS] admin triggerIngestion -> Prefect flow run created ({'triggerIngestion': {'id': '79336fde-4ead-4dd6-b9c5-eac529343d5a', 'state': 'Scheduled'}})
+
+## AC-08.4 rate limits on login, register and checkout (bookPackage = payment path)
+    (waiting 61 s so earlier logins/registrations in this run don't count toward the windows)
+  [PASS] password under 10 chars -> VALIDATION_ERROR on field password 
+  [PASS] login: 5/min per IP, the next attempts get 429 + Retry-After (even with the right password) (codes [200, 200, 200, 200, 200, 429, 429], Retry-After 59, error RATE_LIMITED)
+  [PASS] register: 3/min per IP (1 used by the policy check above) -> 3rd of this burst is 429 (codes [200, 200, 429])
+  [PASS] bookPackage: 5/min per user -> 6th attempt 429 (codes [200, 200, 200, 200, 200, 429])
+
+ALL CHECKS PASSED

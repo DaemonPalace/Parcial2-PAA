@@ -1,0 +1,3 @@
+# AC-07.0 — Strawberry schema (implementation) vs docs/schema.graphql (Stage 01 contract), graphql-core diff both ways
+contract -> implementation differences: none
+implementation -> contract differences: none

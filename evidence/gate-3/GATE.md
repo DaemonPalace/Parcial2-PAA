@@ -1,6 +1,6 @@
 # Gate G3 — Stages 05–06 (Domain microservices + SAGA orchestration) — Gate report
 
-**Date:** 2026-10-09 (runs logged in UTC, 2026-10-10 01:20–01:45Z) · **Commits:** `ca7355f` (05) · stage-06 commit (this report is part of it) · **Status:** awaiting approval
+**Date:** 2026-10-09 (runs logged in UTC, 2026-10-10 01:20–01:45Z) · **Commits:** `ca7355f` (05) · stage-06 commit (this report is part of it) · **Status:** approved 2026-10-10
 
 ## Built
 
@@ -62,4 +62,4 @@
 - **Payment is a mock (Q-16).**
 
 ## Approval
-- [ ] Approved by user — date: ____
+- [x] Approved by user — date: 2026-10-10
