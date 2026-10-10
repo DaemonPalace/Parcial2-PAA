@@ -113,8 +113,8 @@ Gates merged to 5 (D-007, deadline 2026-10-10). Each stage still gets its own co
 | Gate | Stage | Name | Status | Gate date |
 |---|---|---|---|---|
 | G1 | 00 | Decisions & repo bootstrap | **done** (closed by user 2026-10-09) | |
-| G1 | 01 | Architecture & design spec | in progress | |
-| G1 | 02 | Infrastructure skeleton (Docker Compose) | not started | |
+| G1 | 01 | Architecture & design spec | done (in G1) | |
+| G1 | 02 | Infrastructure skeleton (Docker Compose) | in progress | |
 | G1 | 03 | Persistence & GraphQL-native data layer | not started | |
 | G2 | 04 | Scraping + Dask + Prefect ingestion | not started | |
 | G3 | 05 | Domain microservices | not started | |

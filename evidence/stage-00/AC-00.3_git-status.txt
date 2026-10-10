@@ -1,0 +1,3 @@
+$ git status --porcelain (right after stage-00 commit)
+(empty = clean)
+1e656a0 chore(stage-00): decisions, spec and repo skeleton

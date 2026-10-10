@@ -1,0 +1,4 @@
+graphql-core 3.2.6: build_schema OK; validate_schema errors: []
+Query fields: ['cities', 'me', 'myOrders', 'order', 'packageAvailability']
+Mutation fields: ['bookPackage', 'login', 'logout', 'register', 'triggerIngestion']
+Sample operations validate against SDL, errors: []

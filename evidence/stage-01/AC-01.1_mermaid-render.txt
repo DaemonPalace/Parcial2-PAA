@@ -1,0 +1,19 @@
+# Render every mermaid block in docs/design.md + requirements.md with minlag/mermaid-cli:11.17.1
+PASS design-01.svg
+PASS design-02.svg
+PASS design-03.svg
+PASS design-04.svg
+PASS design-05.svg
+PASS design-06.svg
+PASS design-07.svg
+PASS design-08.svg
+PASS design-09.svg
+PASS design-10.svg
+PASS design-11.svg
+PASS design-12.svg
+PASS design-13.svg
+PASS design-14.svg
+PASS requirements-01.svg
+PASS requirements-02.svg
+PASS requirements-03.svg
+PASS requirements-04.svg

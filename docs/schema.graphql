@@ -1,0 +1,247 @@
+# WanderSync — GraphQL contract (single endpoint: POST /graphql on the gateway).
+#
+# Query    → read side. Catalog fields are forwarded to pg_graphql with only the
+#            requested columns (no over-fetching), one DB round-trip per search.
+# Mutation → write side. bookPackage starts the booking SAGA (Prefect) in
+#            orders-billing-svc and returns immediately; poll `order` for status.
+
+"Calendar date, YYYY-MM-DD"
+scalar Date
+
+"ISO-8601 timestamp with timezone"
+scalar DateTime
+
+# ─────────────────────────── Enums ───────────────────────────
+
+enum Role {
+  TRAVELER
+  ADMIN
+}
+
+enum OrderStatus {
+  "Order registered, saga not started yet."
+  PENDING
+  "Forward steps executing."
+  RUNNING
+  "Every step succeeded. Terminal."
+  CONFIRMED
+  "A step failed; compensations executing in reverse order."
+  COMPENSATING
+  "All compensations done: nothing reserved, payment refunded. Terminal."
+  CANCELLED
+  "The first step (payment) failed; nothing to compensate. Terminal."
+  REJECTED
+}
+
+enum SagaStepName {
+  PAYMENT
+  FLIGHT
+  HOTEL
+  CAR
+}
+
+enum SagaAction {
+  FORWARD
+  COMPENSATE
+}
+
+enum StepStatus {
+  RUNNING
+  SUCCEEDED
+  FAILED
+}
+
+"How an injected failure behaves (admin-only chaos)."
+enum FailMode {
+  "Participant answers with a business rejection."
+  REJECT
+  "Participant commits the reservation but the confirmation is lost (response arrives after the client timeout) — the brief's orphan-booking scenario."
+  TIMEOUT
+}
+
+enum SortOrder {
+  PRICE_ASC
+  PRICE_DESC
+}
+
+enum UserErrorCode {
+  VALIDATION_ERROR
+  INVALID_REGISTRATION
+  INVALID_CREDENTIALS
+  UNAUTHENTICATED
+  FORBIDDEN
+  RATE_LIMITED
+  OFFER_NOT_FOUND
+  OFFER_UNAVAILABLE
+}
+
+# ─────────────────────────── Catalog (read model) ───────────────────────────
+
+type City {
+  "IATA code, e.g. BOG"
+  code: String!
+  name: String!
+}
+
+type FlightOffer {
+  id: ID!
+  source: String!
+  airline: String!
+  origin: String!
+  destination: String!
+  departAt: DateTime!
+  arriveAt: DateTime
+  durationMinutes: Int
+  stops: Int
+  priceCop: Int!
+  seatsAvailable: Int!
+  scrapedAt: DateTime!
+}
+
+type HotelOffer {
+  id: ID!
+  source: String!
+  name: String!
+  city: String!
+  checkIn: Date!
+  checkOut: Date!
+  rating: Float
+  priceTotalCop: Int!
+  roomsAvailable: Int!
+  url: String
+  scrapedAt: DateTime!
+}
+
+type CarOffer {
+  id: ID!
+  source: String!
+  vendor: String!
+  model: String!
+  category: String
+  city: String!
+  pickupDate: Date!
+  dropoffDate: Date!
+  priceTotalCop: Int!
+  unitsAvailable: Int!
+  scrapedAt: DateTime!
+}
+
+type Package {
+  flight: FlightOffer!
+  hotel: HotelOffer!
+  car: CarOffer!
+  totalCop: Int!
+}
+
+"Everything needed to build a package for one search, resolved in one request."
+type PackageAvailability {
+  flights(limit: Int = 10, sort: SortOrder = PRICE_ASC): [FlightOffer!]!
+  hotels(limit: Int = 10, sort: SortOrder = PRICE_ASC): [HotelOffer!]!
+  cars(limit: Int = 10, sort: SortOrder = PRICE_ASC): [CarOffer!]!
+  "Cheapest available flight + hotel + car combination, null if any component is missing."
+  cheapestPackage: Package
+}
+
+input PackageSearchInput {
+  origin: String!
+  destination: String!
+  "Flight date, hotel check-in, car pick-up."
+  departDate: Date!
+  "Hotel check-out, car drop-off."
+  returnDate: Date!
+}
+
+# ─────────────────────────── Accounts ───────────────────────────
+
+type User {
+  id: ID!
+  email: String!
+  role: Role!
+  createdAt: DateTime!
+}
+
+type UserError {
+  code: UserErrorCode!
+  message: String!
+  "Input field the error refers to, if any."
+  field: String
+}
+
+type AuthPayload {
+  user: User
+  userErrors: [UserError!]!
+}
+
+# ─────────────────────────── Orders (SAGA) ───────────────────────────
+
+type SagaStep {
+  name: SagaStepName!
+  action: SagaAction!
+  status: StepStatus!
+  error: String
+  startedAt: DateTime!
+  endedAt: DateTime
+}
+
+type Order {
+  id: ID!
+  status: OrderStatus!
+  totalCop: Int!
+  failureReason: String
+  createdAt: DateTime!
+  updatedAt: DateTime!
+  flight: FlightOffer
+  hotel: HotelOffer
+  car: CarOffer
+  "Step trail in execution order (forward steps, then compensations)."
+  steps: [SagaStep!]!
+}
+
+input ChaosInput {
+  "Step that will fail. Admin-only; ignored for travelers."
+  failAt: SagaStepName!
+  mode: FailMode = REJECT
+  "First compensation call to each participant fails once, to prove Prefect retries recover it."
+  flakyCompensation: Boolean = false
+}
+
+input BookPackageInput {
+  "Client-generated UUID. Same key = same order, never booked or charged twice."
+  idempotencyKey: ID!
+  flightOfferId: ID!
+  hotelOfferId: ID!
+  carOfferId: ID!
+  chaos: ChaosInput
+}
+
+type BookPackagePayload {
+  order: Order
+  userErrors: [UserError!]!
+}
+
+type IngestionRun {
+  "Prefect flow-run id."
+  id: ID!
+  state: String!
+}
+
+# ─────────────────────────── Roots ───────────────────────────
+
+type Query {
+  me: User
+  cities: [City!]!
+  packageAvailability(input: PackageSearchInput!): PackageAvailability!
+  "Own order only (admins: any)."
+  order(id: ID!): Order
+  myOrders(first: Int = 20): [Order!]!
+}
+
+type Mutation {
+  register(email: String!, password: String!): AuthPayload!
+  "Rotates the session id (session fixation mitigation)."
+  login(email: String!, password: String!): AuthPayload!
+  logout: Boolean!
+  bookPackage(input: BookPackageInput!): BookPackagePayload!
+  "Admin-only: starts the ingestion deployment now instead of waiting for the schedule."
+  triggerIngestion: IngestionRun!
+}
