@@ -28,15 +28,56 @@
   --state-running-bg: #e3eef8;
   --state-running-fg: #2e6f9e;
   --state-success-bg: #e3f4e8;
-  --state-success-fg: #2f7d4f;
+  --state-success-fg: #276b43;
   --state-failed-bg: #fbeaea;
   --state-failed-fg: #b23b3b;
   --state-compensating-bg: #fbefd9;
-  --state-compensating-fg: #9a6512;
+  --state-compensating-fg: #82540e;
   --state-compensated-bg: #efe9fa;
   --state-compensated-fg: #6b4fa0;
 
   --radius: 0.5rem;
+  color-scheme: light;
+}
+
+/* Dark mode follows the OS setting; same accent (teal), same hierarchy. */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0e1615;
+    --foreground: #e3ecea;
+    --card: #152120;
+    --card-foreground: #e3ecea;
+    --popover: #152120;
+    --popover-foreground: #e3ecea;
+    --primary: #3cb5a4;
+    --primary-foreground: #08201d;
+    --secondary: #1c2b29;
+    --secondary-foreground: #e3ecea;
+    --muted: #1c2b29;
+    --muted-foreground: #9db1ad;
+    --accent: #173a35;
+    --accent-foreground: #8fe0d3;
+    --destructive: #e07a7a;
+    --destructive-foreground: #1a0d0d;
+    --border: #2a3b39;
+    --input: #344a47;
+    --ring: #3cb5a4;
+
+    --state-pending-bg: #1c2b29;
+    --state-pending-fg: #9db1ad;
+    --state-running-bg: #172636;
+    --state-running-fg: #7ab4e0;
+    --state-success-bg: #14281c;
+    --state-success-fg: #6cc795;
+    --state-failed-bg: #2e1818;
+    --state-failed-fg: #ef8f8f;
+    --state-compensating-bg: #33270f;
+    --state-compensating-fg: #e3b25e;
+    --state-compensated-bg: #241c33;
+    --state-compensated-fg: #b9a2ec;
+
+    color-scheme: dark;
+  }
 }
 
 @theme inline {
@@ -77,9 +118,9 @@
   --radius-lg: var(--radius);
   --radius-xl: calc(var(--radius) + 4px);
 
-  /* System fonts: no build-time font download, the stack stays fully local. */
-  --font-sans: ui-sans-serif, system-ui, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-  --font-mono: ui-monospace, "SFMono-Regular", "JetBrains Mono", Menlo, Consolas, monospace;
+  /* Geist ships its font files inside the npm package (self-hosted, no download at build or run time). */
+  --font-sans: var(--font-geist-sans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
 }
 
 @layer base {

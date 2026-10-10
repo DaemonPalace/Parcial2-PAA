@@ -4,11 +4,12 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useLazyQuery, useMutation, useQuery } from "@apollo/client/react";
-import { BedDouble, Car, Loader2, Plane, Search, ShieldAlert } from "lucide-react";
+import { BedDouble, Car, Plane, Search, ShieldAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Skeleton } from "@/components/ui/skeleton";
 import { BOOK, CITIES, ME, SEARCH, requestError, type Me, type UserError } from "@/lib/gql";
 import { SOURCE_LABEL, isoDay, money, time } from "@/lib/format";
 import { cn } from "@/lib/utils";
@@ -139,13 +140,27 @@ export default function SearchPage() {
                 onChange={(e) => setForm({ ...form, returnDate: e.target.value })} />
             </div>
             <Button type="submit" disabled={loading || form.origin === form.destination}>
-              {loading ? <Loader2 className="animate-spin" /> : <Search />} Buscar
+              <Search /> {loading ? "Buscando…" : "Buscar"}
             </Button>
           </form>
         </CardContent>
       </Card>
 
       {error && <p role="alert" className="text-sm text-destructive">{error.message}</p>}
+
+      {loading && !result && (
+        <div className="grid gap-6 lg:grid-cols-[1fr_320px]" aria-busy="true" aria-label="Buscando ofertas">
+          <div className="grid gap-6 md:grid-cols-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="flex flex-col gap-2">
+                <Skeleton className="h-6 w-24" />
+                {[0, 1, 2].map((j) => <Skeleton key={j} className="h-20 w-full" />)}
+              </div>
+            ))}
+          </div>
+          <Skeleton className="h-56 w-full" />
+        </div>
+      )}
 
       {result && (
         <div className="grid gap-6 lg:grid-cols-[1fr_320px]">
@@ -156,10 +171,11 @@ export default function SearchPage() {
                 {result.flights.length === 0 && <p className="text-sm text-muted-foreground">Sin vuelos para esa fecha.</p>}
                 {result.flights.map((f) => (
                   <Option key={f.id} selected={pick.flight === f.id} onSelect={() => setPick({ ...pick, flight: f.id })}>
-                    <div className="flex justify-between font-medium"><span>{f.airline}</span><span>{money(f.priceCop)}</span></div>
+                    <div className="flex justify-between gap-3 font-medium"><span>{f.airline}</span><span>{money(f.priceCop)}</span></div>
+                    <div className="text-muted-foreground">{time(f.departAt)}{f.arriveAt && ` → ${time(f.arriveAt)}`}</div>
                     <div className="text-muted-foreground">
-                      {time(f.departAt)}{f.arriveAt && ` → ${time(f.arriveAt)}`} · {f.stops ? `${f.stops} escala(s)` : "Directo"}
-                      {f.durationMinutes && ` · ${Math.floor(f.durationMinutes / 60)} h ${f.durationMinutes % 60} min`}
+                      {f.stops ? `${f.stops} escala(s)` : "Directo"}
+                      {f.durationMinutes && `, ${Math.floor(f.durationMinutes / 60)} h ${f.durationMinutes % 60} min`}
                     </div>
                     <Source s={f.source} />
                   </Option>
@@ -173,7 +189,7 @@ export default function SearchPage() {
                 {result.hotels.map((h) => (
                   <Option key={h.id} selected={pick.hotel === h.id} onSelect={() => setPick({ ...pick, hotel: h.id })}>
                     <div className="font-medium">{h.name}</div>
-                    <div className="flex justify-between text-muted-foreground">
+                    <div className="flex justify-between gap-3 text-muted-foreground">
                       <span>{h.rating ? `★ ${h.rating.toFixed(1)}` : "Sin calificación"}</span><span className="font-medium text-foreground">{money(h.priceTotalCop)}</span>
                     </div>
                     <Source s={h.source} />
@@ -187,7 +203,7 @@ export default function SearchPage() {
                 {result.cars.length === 0 && <p className="text-sm text-muted-foreground">Sin autos para esas fechas.</p>}
                 {result.cars.map((c) => (
                   <Option key={c.id} selected={pick.car === c.id} onSelect={() => setPick({ ...pick, car: c.id })}>
-                    <div className="flex justify-between font-medium"><span>{c.model}</span><span>{money(c.priceTotalCop)}</span></div>
+                    <div className="flex justify-between gap-3 font-medium"><span>{c.model}</span><span>{money(c.priceTotalCop)}</span></div>
                     <div className="text-muted-foreground">{c.vendor}{c.category && ` · ${c.category}`}</div>
                     <Source s={c.source} />
                   </Option>
@@ -200,9 +216,9 @@ export default function SearchPage() {
             <CardHeader><CardTitle className="text-base">Tu paquete</CardTitle></CardHeader>
             <CardContent className="flex flex-col gap-3 text-sm">
               <dl className="flex flex-col gap-1">
-                <div className="flex justify-between"><dt className="text-muted-foreground">Vuelo</dt><dd>{flight ? money(flight.priceCop) : "—"}</dd></div>
-                <div className="flex justify-between"><dt className="text-muted-foreground">Hotel</dt><dd>{hotel ? money(hotel.priceTotalCop) : "—"}</dd></div>
-                <div className="flex justify-between"><dt className="text-muted-foreground">Auto</dt><dd>{car ? money(car.priceTotalCop) : "—"}</dd></div>
+                <div className="flex justify-between"><dt className="text-muted-foreground">Vuelo</dt><dd>{flight ? money(flight.priceCop) : "Sin elegir"}</dd></div>
+                <div className="flex justify-between"><dt className="text-muted-foreground">Hotel</dt><dd>{hotel ? money(hotel.priceTotalCop) : "Sin elegir"}</dd></div>
+                <div className="flex justify-between"><dt className="text-muted-foreground">Auto</dt><dd>{car ? money(car.priceTotalCop) : "Sin elegir"}</dd></div>
                 <div className="mt-2 flex justify-between border-t border-border pt-2 text-base font-semibold"><dt>Total</dt><dd>{money(total)}</dd></div>
               </dl>
 
@@ -233,7 +249,7 @@ export default function SearchPage() {
 
               {me ? (
                 <Button onClick={onBook} disabled={!flight || !hotel || !car || booking}>
-                  {booking && <Loader2 className="animate-spin" />} Reservar paquete
+                  {booking ? "Reservando…" : "Reservar paquete"}
                 </Button>
               ) : (
                 <Button asChild><Link href="/ingresar">Ingresa para reservar</Link></Button>

@@ -39,9 +39,9 @@ const BANNER: Record<string, { cls: string; text: string }> = {
 /** Saga errors are technical ("StepTimeout: …"); travelers get a plain explanation, the raw text stays in the tooltip. */
 function friendly(error: string | null): string {
   if (!error) return "";
-  if (error.includes("StepTimeout")) return "Sin confirmación a tiempo (timeout de red)";
+  if (error.includes("StepTimeout") || error.includes("no confirmation")) return "Sin confirmación a tiempo (timeout de red)";
   if (error.includes("payment declined")) return "Pago rechazado";
-  if (error.includes("StepRejected")) return "El proveedor rechazó la reserva";
+  if (error.includes("StepRejected") || /reservation (4\d\d)/.test(error)) return "El proveedor rechazó la reserva";
   if (error.includes("interrupted") || error.includes("recovered_after_crash")) return "Interrumpido por una caída del orquestador";
   return "Error temporal";
 }
@@ -139,19 +139,19 @@ export default function TrackerPage() {
             {order.hotel && (
               <div className="flex justify-between gap-2">
                 <div><div className="font-medium">{order.hotel.name}</div>
-                  <div className="text-muted-foreground">{day(order.hotel.checkIn)} – {day(order.hotel.checkOut)}</div></div>
+                  <div className="text-muted-foreground">{day(order.hotel.checkIn)} - {day(order.hotel.checkOut)}</div></div>
                 <span>{money(order.hotel.priceTotalCop)}</span>
               </div>
             )}
             {order.car && (
               <div className="flex justify-between gap-2">
                 <div><div className="font-medium">{order.car.model} · {order.car.vendor}</div>
-                  <div className="text-muted-foreground">{day(order.car.pickupDate)} – {day(order.car.dropoffDate)}</div></div>
+                  <div className="text-muted-foreground">{day(order.car.pickupDate)} - {day(order.car.dropoffDate)}</div></div>
                 <span>{money(order.car.priceTotalCop)}</span>
               </div>
             )}
             <div className="flex justify-between border-t border-border pt-2 font-semibold"><span>Total</span><span>{money(order.totalCop)}</span></div>
-            {order.failureReason && <p className="text-xs text-muted-foreground" title={order.failureReason}>Motivo: {friendly(order.failureReason) === "Error temporal" ? order.failureReason : friendly(order.failureReason)}</p>}
+            {order.failureReason && <p className="text-xs text-muted-foreground" title={order.failureReason}>Motivo: {friendly(order.failureReason)}</p>}
           </CardContent>
         </Card>
       </div>

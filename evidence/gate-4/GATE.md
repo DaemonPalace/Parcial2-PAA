@@ -58,6 +58,18 @@ Reproduce: `python3 scripts/test_gateway.py` (Stages 07–08, about 3.5 min incl
 3. **Critical CVE inherited by reuse:** `next@16.3.5` from Taller-PatronSaga (RCE in `next/og`). Upgraded to 16.3.8. The unused eslint chain, which carried a high `braces` advisory with no fix, was removed.
 4. **No visible keyboard focus on links:** my first a11y check passed falsely (it accepted a transparent shadow). A global `:focus-visible` outline was added and the check was made strict.
 
+## Design pass (design-taste-frontend skill, targeted fixes, requested 2026-10-10)
+Only the skill's general rules were applied. It doesn't cover multi-step product UI, so its layout rules for heroes, bentos and eyebrows weren't used. Changes:
+- **Dashes:** every visible em/en dash removed: admin link labels, date ranges (now `17/10/2026 - 20/10/2026`), and the `—` empty placeholders in the package summary (now "Sin elegir").
+- **Dark mode:** a full dark token set follows `prefers-color-scheme`, with `color-scheme` set so native date pickers and selects match.
+- **Contrast:** all 15 text/background token pairs pass WCAG AA in both modes. The light "Confirmada" and "Compensando" badges, inherited from Taller-PatronSaga, were at 4.41 and 4.35 and are now 5.62 and 5.72.
+- **Loading states:** spinners replaced with skeleton results while searching and with verb labels on buttons ("Buscando…", "Reservando…", "Verificando…"). The only spinner kept marks real progress on a running SAGA step.
+- **Press feedback:** buttons scale slightly when pressed (`active:scale-[0.98]`), disabled when the user prefers reduced motion.
+- **Separators:** at most one middle dot per line. The flight row now shows its times on one line and stops plus duration on the next.
+- **Font:** Geist from the `geist` npm package. The font files ship inside the bundle, so nothing is downloaded at build or run time. `npm audit` still reports 0 vulnerabilities.
+- **Polish:** a gap between long names and prices, and the "Motivo" line now shows a friendly Spanish reason.
+- Evidence: `stage-09/07-dark-search.png`, `stage-09/08-dark-tracker.png`. The E2E gained a dark-mode check, and all checks pass.
+
 ## Deviations from spec
 - **Stage 07 and 08 code ship together.** The gateway code for both stages landed in the stage-07 commit, because the session middleware and resolvers are one module set. The stage-08 commit holds the verification and the audit.
 - **Depth limit replaced by an alias limit** (design §5.1 updated).

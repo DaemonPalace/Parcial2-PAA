@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useMutation, useQuery } from "@apollo/client/react";
-import { ExternalLink, Loader2, RefreshCw } from "lucide-react";
+import { ExternalLink, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ME, TRIGGER_INGESTION, requestError, type Me } from "@/lib/gql";
@@ -36,7 +36,7 @@ export default function AdminPage() {
               (normalmente corre cada 6 horas).
             </p>
             <Button onClick={run} disabled={loading} className="self-start">
-              {loading ? <Loader2 className="animate-spin" /> : <RefreshCw />} Ejecutar ingesta
+              <RefreshCw /> {loading ? "Programando…" : "Ejecutar ingesta"}
             </Button>
             {msg && <p role="status">{msg}</p>}
           </CardContent>
@@ -45,10 +45,10 @@ export default function AdminPage() {
           <CardHeader><CardTitle className="text-base">Observabilidad</CardTitle></CardHeader>
           <CardContent className="flex flex-col gap-2 text-sm">
             <a className="flex items-center gap-2 text-primary hover:underline" href="http://localhost:4200" target="_blank" rel="noreferrer">
-              <ExternalLink className="size-4" /> Prefect — flujos de ingesta y SAGA
+              <ExternalLink className="size-4" /> Prefect: flujos de ingesta y SAGA
             </a>
             <a className="flex items-center gap-2 text-primary hover:underline" href="http://localhost:8787" target="_blank" rel="noreferrer">
-              <ExternalLink className="size-4" /> Dask — workers y task stream
+              <ExternalLink className="size-4" /> Dask: workers y task stream
             </a>
             <p className="mt-2 text-muted-foreground">
               Para simular fallos SAGA, usa el panel «Simular fallo (admin)» al reservar un paquete.

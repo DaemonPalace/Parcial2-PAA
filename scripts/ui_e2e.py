@@ -92,6 +92,7 @@ body = d.find_element(By.TAG_NAME, "body").text
 comp = body.split("Compensaciones (orden inverso)")[1]
 order = [comp.index(x) for x in ("Cancelar auto", "Cancelar hotel", "Cancelar vuelo", "Reembolso")]
 check("UI shows CANCELLED with Cancelar auto → hotel → vuelo → Reembolso", order == sorted(order))
+cancelled_url = d.current_url
 
 print("## AC-09.1 the browser only talks to the backend through /graphql")
 calls = set()
@@ -130,6 +131,21 @@ focused = d.execute_script("const e=document.activeElement, c=getComputedStyle(e
 check("keyboard focus reaches a control and shows a visible outline", focused[0] != "BODY" and focused[1] != "none" and focused[2] != "0px", f"({focused})")
 lang = d.execute_script("return document.documentElement.lang")
 check("<html lang='es'>", lang == "es")
+
+print("## Dark mode follows prefers-color-scheme")
+light_bg = d.execute_script("return getComputedStyle(document.body).backgroundColor")
+d.execute_cdp_cmd("Emulation.setEmulatedMedia", {"features": [{"name": "prefers-color-scheme", "value": "dark"}]})
+d.get(APP)
+wait.until(EC.presence_of_element_located((By.ID, "origin")))
+time.sleep(1)
+dark_bg = d.execute_script("return getComputedStyle(document.body).backgroundColor")
+shot("07-dark-search")
+login(ADMIN, ADMIN_PW)  # the a11y step above left us logged out; orders are owner-only
+d.get(cancelled_url)
+text_appears("Compensaciones (orden inverso)")
+time.sleep(1)
+shot("08-dark-tracker")
+check("dark token set applies (body background changes)", light_bg != dark_bg, f"(light {light_bg}, dark {dark_bg})")
 
 d.quit()
 print(f"\n{'ALL CHECKS PASSED' if failures == 0 else f'{failures} CHECK(S) FAILED'}")

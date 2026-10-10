@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useApolloClient, useMutation } from "@apollo/client/react";
-import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -64,8 +63,7 @@ export default function LoginPage() {
             <p key={e.code} role="alert" className="text-sm text-destructive">{e.message}</p>
           ))}
           <Button type="submit" disabled={l1 || l2}>
-            {(l1 || l2) && <Loader2 className="animate-spin" />}
-            {mode === "login" ? "Ingresar" : "Crear cuenta"}
+            {l1 || l2 ? "Verificando…" : mode === "login" ? "Ingresar" : "Crear cuenta"}
           </Button>
           <button type="button" className="text-sm text-primary underline-offset-4 hover:underline"
             onClick={() => { setMode(mode === "login" ? "register" : "login"); setErrors([]); }}>

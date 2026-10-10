@@ -1,5 +1,5 @@
 ## AC-09.2 happy path from the UI (new traveler registers, searches, books)
-  [PASS] tracker ends 'Confirmada' with all 4 steps OK (url http://localhost:3000/reservas/8f8402e7-9e21-4b3e-99a2-17e45eba47d1)
+  [PASS] tracker ends 'Confirmada' with all 4 steps OK (url http://localhost:3000/reservas/4c41a781-2d3e-4119-bbbf-169263fac3c1)
 ## AC-09.3 car failure from the UI (admin chaos) shows compensations live
   [PASS] UI shows CANCELLED with Cancelar auto → hotel → vuelo → Reembolso 
 ## AC-09.1 the browser only talks to the backend through /graphql
@@ -11,5 +11,7 @@
   [PASS] every input/select has a label (0 unlabeled)
   [PASS] keyboard focus reaches a control and shows a visible outline (['A', 'solid', '3px'])
   [PASS] <html lang='es'> 
+## Dark mode follows prefers-color-scheme
+  [PASS] dark token set applies (body background changes) (light rgb(245, 247, 247), dark rgb(14, 22, 21))
 
 ALL CHECKS PASSED
