@@ -119,10 +119,10 @@ Gates merged to 5 (D-007, deadline 2026-10-10). Each stage still gets its own co
 | G2 | 04 | Scraping + Dask + Prefect ingestion | done | 2026-10-09 (G2 approved) |
 | G3 | 05 | Domain microservices | done | 2026-10-10 (G3 approved) |
 | G3 | 06 | SAGA orchestration (Prefect) | done | 2026-10-10 (G3 approved) |
-| G4 | 07 | GraphQL API Gateway | done — **G4 awaiting approval** | |
-| G4 | 08 | Security by design | done — **G4 awaiting approval** | |
-| G4 | 09 | Frontend | done — **G4 awaiting approval** | |
-| G5 | 10 | End-to-end verification & demo script | not started | |
+| G4 | 07 | GraphQL API Gateway | done | 2026-10-10 (G4 approved) |
+| G4 | 08 | Security by design | done | 2026-10-10 (G4 approved) |
+| G4 | 09 | Frontend | done | 2026-10-10 (G4 approved) |
+| G5 | 10 | End-to-end verification & demo script | in progress | |
 | G5 | 11 | Technical architecture document & delivery | not started | |
 
 Status values: `not started` · `open` · `in progress` · `awaiting gate` · `approved` · `reopened`.

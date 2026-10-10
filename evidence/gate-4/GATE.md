@@ -1,6 +1,6 @@
 # Gate G4 — Stages 07–09 (GraphQL gateway, Security, Frontend) — Gate report
 
-**Date:** 2026-10-10 · **Commits:** `8a303f1` (07) · `6cb627b` (08) · stage-09 commit (this report is part of it) · **Status:** awaiting approval
+**Date:** 2026-10-10 · **Commits:** `8a303f1` (07) · `6cb627b` (08) · stage-09 commit (this report is part of it) · **Status:** approved 2026-10-10
 
 ## Built
 
@@ -83,4 +83,4 @@ Only the skill's general rules were applied. It doesn't cover multi-step product
 - **Search covers 1–7 nights.** Live-scraped offers exist only for the ingestion plan (+7 and +14 days, 3 nights); other dates use seed offers, labeled "Catálogo base" in the UI.
 
 ## Approval
-- [ ] Approved by user — date: ____
+- [x] Approved by user — date: 2026-10-10
