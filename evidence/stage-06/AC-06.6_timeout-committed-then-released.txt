@@ -1,0 +1,12 @@
+# AC-06.6 — lost confirmation: the hotel DID commit (offer_id set = real reservation, not a tombstone) and compensation released it
+               order_id               | offer_id |  status   | reserved_at | cancelled_at 
+--------------------------------------+----------+-----------+-------------+--------------
+ 8294acfe-3191-4f8a-98cc-57c34779b154 |      305 | CANCELLED | 01:37:54    | 01:38:00
+(1 row)
+
+# compare: the REJECT case (car_fails) only ever wrote a tombstone for the car (offer_id NULL)
+               order_id               | offer_id |  status   
+--------------------------------------+----------+-----------
+ 65ed9422-63d8-4fd3-8fa1-c689868e5c17 |          | CANCELLED
+(1 row)
+

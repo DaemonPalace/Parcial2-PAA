@@ -1,0 +1,19 @@
+# AC-06.9 — reconciliation across all service schemas after every case above + 3 crash recoveries
+# $ docker compose exec -T postgres psql -U supabase_admin -d postgres -f - < scripts/reconcile.sql
+                               check                               | violations 
+-------------------------------------------------------------------+------------
+ orders not in a terminal state                                    |          0
+ orphan reservations (RESERVED for an order that is not CONFIRMED) |          0
+ retained charges (CHARGED for an order that is not CONFIRMED)     |          0
+ CONFIRMED orders missing a reservation or the charge              |          0
+ held units (RESERVED) with no order at all                        |          0
+(5 rows)
+
+# order totals by final status
+  status   | count 
+-----------+-------
+ CANCELLED |    14
+ CONFIRMED |     2
+ REJECTED  |     1
+(3 rows)
+

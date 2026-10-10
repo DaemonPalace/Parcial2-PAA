@@ -1,0 +1,83 @@
+# AC-06.10 — orchestrator crash mid-saga (Q-24): order 26eb500e-f923-415c-a979-ac17d1214dbe, chaos HOTEL TIMEOUT
+## t+6s: state just before the crash
+ status  | failure_reason 
+---------+----------------
+ RUNNING | 
+(1 row)
+
+  name   | action  |  status   
+---------+---------+-----------
+ PAYMENT | FORWARD | SUCCEEDED
+ FLIGHT  | FORWARD | SUCCEEDED
+ HOTEL   | FORWARD | RUNNING
+(3 rows)
+
+ flight_seats | hotel_rooms | car_units | payment 
+--------------+-------------+-----------+---------
+            4 |           4 |         5 | CHARGED
+(1 row)
+
+## $ docker compose kill orders-billing-svc   (SIGKILL mid-saga)
+ Container wandersync-orders-billing-svc-1 Killed 
+## while the orchestrator is down: order stuck, units held, money charged
+ status  | failure_reason 
+---------+----------------
+ RUNNING | 
+(1 row)
+
+ flight_seats | hotel_rooms | car_units | payment 
+--------------+-------------+-----------+---------
+            4 |           4 |         5 | CHARGED
+(1 row)
+
+## $ docker compose up -d orders-billing-svc   (restart -> startup recovery)
+ Container wandersync-orders-billing-svc-1 Healthy 
+## after recovery
+  status   |    failure_reason     
+-----------+-----------------------
+ CANCELLED | recovered_after_crash
+(1 row)
+
+  name   |   action   |  status   
+---------+------------+-----------
+ PAYMENT | FORWARD    | SUCCEEDED
+ FLIGHT  | FORWARD    | SUCCEEDED
+ HOTEL   | FORWARD    | RUNNING
+ CAR     | COMPENSATE | SUCCEEDED
+ HOTEL   | COMPENSATE | SUCCEEDED
+ FLIGHT  | COMPENSATE | SUCCEEDED
+ PAYMENT | COMPENSATE | SUCCEEDED
+(7 rows)
+
+ flight_seats | hotel_rooms | car_units | payment  
+--------------+-------------+-----------+----------
+            5 |           5 |         5 | REFUNDED
+(1 row)
+
+## orchestrator log
+2026-10-10 01:38:55,897 INFO prefect.task_runs Finished in state Completed()
+2026-10-10 01:39:05,348 WARNING orders-billing recovering unfinished order 26eb500e-f923-415c-a979-ac17d1214dbe
+2026-10-10 01:39:05,485 INFO prefect.flow_runs Beginning flow run 'recover-26eb500e-f923-415c-a979-ac17d1214dbe' for flow 'recover-unfinished-order'
+2026-10-10 01:39:07,117 INFO prefect.task_runs Finished in state Completed()
+2026-10-10 01:39:08,692 INFO prefect.task_runs Finished in state Completed()
+2026-10-10 01:39:10,274 INFO prefect.task_runs Finished in state Completed()
+2026-10-10 01:39:11,842 INFO prefect.task_runs Finished in state Completed()
+2026-10-10 01:39:11,889 INFO prefect.flow_runs Finished in state Completed()
+
+# Re-run after fix: interrupted forward step is now closed as FAILED by recovery (order a6ff37b1-6ac4-48c1-84f4-4cea3a015502)
+  status   |    failure_reason     
+-----------+-----------------------
+ CANCELLED | recovered_after_crash
+(1 row)
+
+  name   |   action   |  status   |               error               
+---------+------------+-----------+-----------------------------------
+ PAYMENT | FORWARD    | SUCCEEDED | 
+ FLIGHT  | FORWARD    | SUCCEEDED | 
+ HOTEL   | FORWARD    | FAILED    | interrupted: orchestrator crashed
+ CAR     | COMPENSATE | SUCCEEDED | 
+ HOTEL   | COMPENSATE | SUCCEEDED | 
+ FLIGHT  | COMPENSATE | SUCCEEDED | 
+ PAYMENT | COMPENSATE | SUCCEEDED | 
+(7 rows)
+

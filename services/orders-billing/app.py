@@ -19,10 +19,16 @@ log = logging.getLogger("orders-billing")
 _running: set[asyncio.Task] = set()  # keep references so sagas aren't garbage-collected
 
 
+def _finished(t: asyncio.Task) -> None:
+    _running.discard(t)
+    if not t.cancelled() and t.exception():
+        log.error("saga task crashed", exc_info=t.exception())
+
+
 def start(coro) -> None:
     t = asyncio.create_task(coro)
     _running.add(t)
-    t.add_done_callback(_running.discard)
+    t.add_done_callback(_finished)
 
 
 class ChaosIn(BaseModel):
@@ -67,6 +73,8 @@ async def fetch_order(conn, order_id) -> dict | None:
     order = await (await cur.execute(ORDER_SQL.format(where="id = %s"), (order_id,))).fetchone()
     if order:
         order["steps"] = await (await cur.execute(STEPS_SQL, (order_id,))).fetchall()
+        payment = await (await cur.execute("select status from payments where order_id = %s", (order_id,))).fetchone()
+        order["payment_status"] = payment["status"] if payment else None
     return order
 
 
@@ -103,14 +111,15 @@ async def create_order(body: OrderIn, response: Response):
              total, json.dumps(body.chaos.model_dump()) if body.chaos else None),
         )
         created = await cur.fetchone()
-        if not created:  # lost a race with a concurrent request carrying the same key
+        is_new = created is not None
+        if not is_new:  # lost a race with a concurrent request carrying the same key
             response.status_code = 200
             cur = await conn.execute("select id from orders where idempotency_key = %s", (body.idempotency_key,))
             created = await cur.fetchone()
         await conn.commit()
         order = await fetch_order(conn, created[0])
 
-    if response.status_code == 201:
+    if is_new:
         start(book_package_saga(str(order["id"])))
     return order
 

@@ -192,5 +192,7 @@ async def recover_order(order_id: str) -> str:
     order = await load_order(order_id)
     await db_exec("update orders set failure_reason = coalesce(failure_reason, 'recovered_after_crash') where id = %s",
                   (order_id,))
+    await db_exec("update saga_steps set status = 'FAILED', error = 'interrupted: orchestrator crashed', ended_at = now() "
+                  "where order_id = %s and status = 'RUNNING'", (order_id,))
     await compensate(order, ["CAR", "HOTEL", "FLIGHT"])
     return "CANCELLED"

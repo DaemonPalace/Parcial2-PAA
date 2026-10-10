@@ -125,9 +125,10 @@ sequenceDiagram
   participant HO as Hotels
   participant CA as Cars
   T->>GW: mutation bookPackage(idempotencyKey, offers)
-  GW->>GW: auth + rate limit, price offers from catalog
+  GW->>GW: auth + rate limit
   GW->>OB: POST /orders
-  OB->>OB: insert order PENDING (unique idempotency_key)
+  OB->>FL: GET /offers/{id} (same for hotel, car): price + availability
+  OB->>OB: insert order PENDING (unique idempotency_key), total from the owners' prices
   OB-->>GW: 201 order
   GW-->>T: order {id, status: PENDING}
   Note over OB: book-package-saga flow run starts (background)
@@ -307,7 +308,7 @@ Recovery always compensates (never resumes forward): simplest correct choice, an
 | Task | Retries | Delay | Retries on |
 |---|---|---|---|
 | `charge_payment` | 0 | — | — (local, deterministic) |
-| `reserve_flight/hotel/car` | 1 | 2 s | transport errors and 5xx only — never on 409/422 business rejections, never on client timeout (a timeout is treated as failure and compensated) |
+| `reserve_flight/hotel/car` | 1 (inside the task) | immediate | transport errors and 5xx only — never on 409/410/422 business rejections, never on client timeout (a timeout is treated as failure and compensated) |
 | `cancel_*`, `refund_payment` | 5 | exponential 1, 2, 4, 8, 16 s | any error |
 
 Step delay (NFR-07): every task sleeps `SAGA_STEP_DELAY_SECONDS` (default 1.5 s, `0` for automated tests) so the frontend tracker and Prefect UI show each transition.
@@ -474,13 +475,14 @@ Full SDL: [`schema.graphql`](schema.graphql). Key points:
 |---|---|---|
 | `POST /reservations` | `{order_id, offer_id, chaos?: {fail: "REJECT"\|"TIMEOUT"}}` | `201` reserved · `200` already reserved (replay) · `409 SOLD_OUT` · `404 OFFER_NOT_FOUND` · `422 REJECTED` (chaos) · `410` already cancelled (tombstone, nothing done) |
 | `POST /reservations/{order_id}/cancel` | `{flaky?: bool}` | `200` (cancelled, restored, or tombstone written) · `503` (chaos flaky, first attempt only) |
+| `GET /offers/{id}` | — | `200 {id, price_cop, available}` · `404` — price authority for orders-billing |
 | `GET /health` | — | `200` when DB reachable |
 
 **Orders-Billing** — `orders-billing-svc`:
 
 | Method & path | Body | Responses |
 |---|---|---|
-| `POST /orders` | `{idempotency_key, user_id, flight_offer_id, hotel_offer_id, car_offer_id, total_cop, chaos?}` | `201` created + saga started · `200` existing order for that key |
+| `POST /orders` | `{idempotency_key, user_id, flight_offer_id, hotel_offer_id, car_offer_id, chaos?}` | `201` created + saga started · `200` existing order for that key · `404/409` offer missing / sold out. `total_cop` is computed here from each participant's `GET /offers/{id}` — the owning services are the price authority, a client total is never trusted |
 | `GET /orders/{id}` | — | `200` order + steps · `404` |
 | `GET /orders?user_id=&limit=` | — | `200` list |
 | `GET /health` | — | `200` |

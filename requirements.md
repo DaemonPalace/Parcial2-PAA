@@ -117,8 +117,8 @@ Gates merged to 5 (D-007, deadline 2026-10-10). Each stage still gets its own co
 | G1 | 02 | Infrastructure skeleton (Docker Compose) | done | 2026-10-09 (G1 approved) |
 | G1 | 03 | Persistence & GraphQL-native data layer | done | 2026-10-09 (G1 approved) |
 | G2 | 04 | Scraping + Dask + Prefect ingestion | done | 2026-10-09 (G2 approved) |
-| G3 | 05 | Domain microservices | done (in G3) | |
-| G3 | 06 | SAGA orchestration (Prefect) | in progress | |
+| G3 | 05 | Domain microservices | done — **G3 awaiting approval** | |
+| G3 | 06 | SAGA orchestration (Prefect) | done — **G3 awaiting approval** | |
 | G4 | 07 | GraphQL API Gateway | not started | |
 | G4 | 08 | Security by design | not started | |
 | G4 | 09 | Frontend | not started | |
@@ -864,6 +864,7 @@ Answer inline (fill the **Answer** column) or reply in chat. Blank = recommended
 
 | Date | Change |
 |---|---|
+| 2026-10-09 | G2 approved. Stages 05–06 built and verified (8 SAGA cases + crash recovery + reconciliation); G3 report in `evidence/gate-3/GATE.md`. |
 | 2026-10-09 | G1 approved. Stage 04 built and verified against real sites (Google Flights, Booking.com, Booking.com Cars); G2 report in `evidence/gate-2/GATE.md`. |
 | 2026-10-09 | Stages 01–03 built and verified; G1 gate report in `evidence/gate-1/GATE.md`. |
 | 2026-10-09 | Stage 00 closed (D-009). |
