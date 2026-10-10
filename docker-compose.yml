@@ -195,3 +195,25 @@ services:
         condition: service_healthy
       orders-billing-svc:
         condition: service_healthy
+
+  # ---------- Frontend ----------
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        # Inlined into the browser bundle: the host-published gateway URL.
+        NEXT_PUBLIC_GRAPHQL_URL: http://localhost:8000/graphql
+    networks: [wandersync-net]
+    ports:
+      - "127.0.0.1:3000:3000"
+    depends_on:
+      gateway:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "node", "-e", "require('http').get('http://localhost:3000', r => process.exit(r.statusCode < 500 ? 0 : 1)).on('error', () => process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped

@@ -1,0 +1,20 @@
+# AC-08.6 — npm audit (frontend/package-lock.json), npm 10.9.8, run 2026-10-10T05:55:23Z
+
+## Before remediation (next 16.3.5 inherited from Taller-PatronSaga + eslint-config-next 16.3.5)
+6 vulnerabilities (5 high, 1 critical) — full JSON: supply-chain/frontend-npm-audit-before.json
+- @next/eslint-plugin-next [high] via fast-glob
+- braces [high] braces vulnerable to stack-exhaustion denial of service through deeply nested patterns
+- eslint-config-next [high] via @next/eslint-plugin-next
+- fast-glob [high] via micromatch
+- micromatch [high] via braces
+- next [critical] Next.js: Remote Code Execution in next/og ImageResponse; Next.js: Pending `use cache` fill can leak Draft Mode content into regular responses and persisted pages; Next.js has cache poisoning of SSG and ISR pages in self-hosted applications; Next.js has information disclosure in development server's Model Context Protocol endpoint; Next.js has information disclosure in App Router metadata image routes via dynamicParams bypass; Next.js has cache poisoning in SSG/ISR rendering that leads to cross-user content substitution and persistent denial of service; Next.js has Server-Side Request Forgery in Image Optimization
+
+## Remediation
+- next 16.3.5 -> 16.3.8 (first release outside the vulnerable range 16.0.0–16.3.7; patch release 2026-09-30).
+- Removed eslint + eslint-config-next (+ eslint.config.mjs, 'lint' script): unused (no lint step in the build), and the only path to braces/micromatch/fast-glob/@next/eslint-plugin-next (braces advisory affects ALL versions — no fixed version exists).
+
+## After remediation
+$ cd frontend && npm audit
+found 0 vulnerabilities
+$ npm audit --omit=dev
+found 0 vulnerabilities

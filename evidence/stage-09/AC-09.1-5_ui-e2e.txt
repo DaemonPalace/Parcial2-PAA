@@ -1,0 +1,15 @@
+## AC-09.2 happy path from the UI (new traveler registers, searches, books)
+  [PASS] tracker ends 'Confirmada' with all 4 steps OK (url http://localhost:3000/reservas/8f8402e7-9e21-4b3e-99a2-17e45eba47d1)
+## AC-09.3 car failure from the UI (admin chaos) shows compensations live
+  [PASS] UI shows CANCELLED with Cancelar auto → hotel → vuelo → Reembolso 
+## AC-09.1 the browser only talks to the backend through /graphql
+    non-frontend URLs requested: ['http://localhost:8000/graphql']
+  [PASS] only http://localhost:8000/graphql 
+## AC-09.4 errors are shown meaningfully
+  [PASS] wrong password -> 'Correo o contraseña incorrectos.' 
+## AC-09.5 basic accessibility
+  [PASS] every input/select has a label (0 unlabeled)
+  [PASS] keyboard focus reaches a control and shows a visible outline (['A', 'solid', '3px'])
+  [PASS] <html lang='es'> 
+
+ALL CHECKS PASSED

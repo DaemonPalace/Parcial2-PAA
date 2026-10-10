@@ -9,6 +9,7 @@ case "${1:-up}" in
     docker compose up -d --build --wait
     cat <<URLS
 WanderSync is up.
+  App               http://localhost:3000
   GraphQL gateway   http://localhost:8000/graphql
   Prefect UI        http://localhost:4200
   Dask dashboard    http://localhost:8787

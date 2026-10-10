@@ -119,9 +119,9 @@ Gates merged to 5 (D-007, deadline 2026-10-10). Each stage still gets its own co
 | G2 | 04 | Scraping + Dask + Prefect ingestion | done | 2026-10-09 (G2 approved) |
 | G3 | 05 | Domain microservices | done | 2026-10-10 (G3 approved) |
 | G3 | 06 | SAGA orchestration (Prefect) | done | 2026-10-10 (G3 approved) |
-| G4 | 07 | GraphQL API Gateway | done (in G4) | |
-| G4 | 08 | Security by design | in progress | |
-| G4 | 09 | Frontend | not started | |
+| G4 | 07 | GraphQL API Gateway | done — **G4 awaiting approval** | |
+| G4 | 08 | Security by design | done — **G4 awaiting approval** | |
+| G4 | 09 | Frontend | done — **G4 awaiting approval** | |
 | G5 | 10 | End-to-end verification & demo script | not started | |
 | G5 | 11 | Technical architecture document & delivery | not started | |
 
@@ -864,6 +864,7 @@ Answer inline (fill the **Answer** column) or reply in chat. Blank = recommended
 
 | Date | Change |
 |---|---|
+| 2026-10-10 | G3 approved. Stages 07–09 built and verified (gateway, security, frontend; critical Next.js CVE found by npm audit and fixed); G4 report in `evidence/gate-4/GATE.md`. |
 | 2026-10-09 | G2 approved. Stages 05–06 built and verified (8 SAGA cases + crash recovery + reconciliation); G3 report in `evidence/gate-3/GATE.md`. |
 | 2026-10-09 | G1 approved. Stage 04 built and verified against real sites (Google Flights, Booking.com, Booking.com Cars); G2 report in `evidence/gate-2/GATE.md`. |
 | 2026-10-09 | Stages 01–03 built and verified; G1 gate report in `evidence/gate-1/GATE.md`. |
