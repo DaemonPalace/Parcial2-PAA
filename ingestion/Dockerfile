@@ -15,6 +15,7 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY flows/ flows/
+COPY tests/ tests/
 ENV PYTHONPATH=/app PYTHONUNBUFFERED=1
 
 USER app

@@ -1,0 +1,6 @@
+# AC-04.7 — Cron schedule fires with no manual action
+# INGEST_CRON temporarily set to '*/5 * * * *' in .env, ingestion restarted, then polled the Prefect API:
+deployment schedules: [('*/5 * * * *', True)]
+auto_scheduled run delectable-taipan: expected_start=2026-10-10 00:45:00+00:00 actual_start=2026-10-10 00:45:03.480153+00:00 state=Completed created_by_schedule=True
+# Reverted to INGEST_CRON='0 */6 * * *' afterwards.
+Prefect runs list: AC-04.7_prefect-runs.png

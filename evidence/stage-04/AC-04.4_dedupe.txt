@@ -1,0 +1,16 @@
+# AC-04.4 — Re-runs don't duplicate (upsert on natural key)
+# Per-run inserted/updated (from evidence/stage-04/ingestion-runs-report.txt):
+#   run 1 cherubic-goose:        flights 398 ins / 0 upd   hotels 250 / 0     cars 223 / 0
+#   run 2 calculating-ammonite:  flights   0 ins / 398 upd hotels  44 / 114   cars   0 / 223
+#   run 4 delectable-taipan:     flights   0 / 398         hotels  25 / 151   cars   0 / 223
+#   run 5 impossible-asp:        flights   0 / 398         hotels  52 / 165   cars   1 / 223
+# Flights and cars: re-runs only refresh price + scraped_at. Hotels: new inserts are properties
+# Booking.com lists on that page load that it didn't list before (its ordering changes per load), not duplicates:
+
+# Natural-key uniqueness check: duplicates per natural key must be 0
+flight dup keys: 0
+hotel dup keys: 0
+car dup keys: 0
+
+# Inventory untouched by re-scrapes (ingestion role can't update it; all scraped offers keep the insert default)
+scraped flights with seats_available<>5: 0

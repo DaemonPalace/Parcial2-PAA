@@ -112,11 +112,11 @@ Gates merged to 5 (D-007, deadline 2026-10-10). Each stage still gets its own co
 
 | Gate | Stage | Name | Status | Gate date |
 |---|---|---|---|---|
-| G1 | 00 | Decisions & repo bootstrap | **done** (closed by user 2026-10-09) | |
-| G1 | 01 | Architecture & design spec | done (in G1) | |
-| G1 | 02 | Infrastructure skeleton (Docker Compose) | done (in G1) | |
-| G1 | 03 | Persistence & GraphQL-native data layer | done — **G1 awaiting approval** | |
-| G2 | 04 | Scraping + Dask + Prefect ingestion | not started | |
+| G1 | 00 | Decisions & repo bootstrap | done | 2026-10-09 (G1 approved) |
+| G1 | 01 | Architecture & design spec | done | 2026-10-09 (G1 approved) |
+| G1 | 02 | Infrastructure skeleton (Docker Compose) | done | 2026-10-09 (G1 approved) |
+| G1 | 03 | Persistence & GraphQL-native data layer | done | 2026-10-09 (G1 approved) |
+| G2 | 04 | Scraping + Dask + Prefect ingestion | done — **G2 awaiting approval** | |
 | G3 | 05 | Domain microservices | not started | |
 | G3 | 06 | SAGA orchestration (Prefect) | not started | |
 | G4 | 07 | GraphQL API Gateway | not started | |
@@ -864,6 +864,7 @@ Answer inline (fill the **Answer** column) or reply in chat. Blank = recommended
 
 | Date | Change |
 |---|---|
+| 2026-10-09 | G1 approved. Stage 04 built and verified against real sites (Google Flights, Booking.com, Booking.com Cars); G2 report in `evidence/gate-2/GATE.md`. |
 | 2026-10-09 | Stages 01–03 built and verified; G1 gate report in `evidence/gate-1/GATE.md`. |
 | 2026-10-09 | Stage 00 closed (D-009). |
 | 2026-10-09 | D-007 5-gate grouping; D-008 gateway + chaos clarified. |

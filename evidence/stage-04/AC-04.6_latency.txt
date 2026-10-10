@@ -1,0 +1,18 @@
+# AC-04.6 — Catalog reads during ingestion (pg_graphql search as gateway_svc, new connection per sample)
+# baseline = no run in progress; during = chaos run in progress (3 Chromium instances + upserts on the same host)
+baseline Time: 56.913 ms
+baseline Time: 26.085 ms
+baseline Time: 31.498 ms
+baseline Time: 31.291 ms
+baseline Time: 74.376 ms
+baseline Time: 62.025 ms
+baseline Time: 62.743 ms
+baseline Time: 30.709 ms
+during-ingestion Time: 82.665 ms
+during-ingestion Time: 56.303 ms
+during-ingestion Time: 56.540 ms
+during-ingestion Time: 57.814 ms
+during-ingestion Time: 60.913 ms
+during-ingestion Time: 142.841 ms
+during-ingestion Time: 97.446 ms
+during-ingestion Time: 159.432 ms

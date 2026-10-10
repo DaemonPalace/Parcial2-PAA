@@ -1,0 +1,16 @@
+# AC-04.2 — Distribution over the 3 Dask workers
+# Each scrape task logs 'attempt N on Dask worker-X' from inside the Dask worker process (Prefect task logs):
+## cherubic-goose  state=Completed  start=2026-10-10 00:29:47Z  duration=155s  auto_scheduled=False  params={}
+    (no per-worker log line: worker logging was added after run 1)
+## calculating-ammonite  state=Completed  start=2026-10-10 00:33:42Z  duration=100s  auto_scheduled=False  params={}
+    scrape attempts per Dask worker: {'worker-1': 13, 'worker-2': 10, 'worker-3': 8}
+## cuddly-perch  state=Completed  start=2026-10-10 00:36:23Z  duration=389s  auto_scheduled=False  params={'fail_attempts': 1, 'break_source': 'booking_cars'}
+    scrape attempts per Dask worker: {'worker-1': 23, 'worker-2': 25, 'worker-3': 27}
+## delectable-taipan  state=Completed  start=2026-10-10 00:45:03Z  duration=144s  auto_scheduled=True  params={}
+    scrape attempts per Dask worker: {'worker-1': 9, 'worker-2': 9, 'worker-3': 10}
+## impossible-asp  state=Completed  start=2026-10-10 00:50:06Z  duration=143s  auto_scheduled=False  params={}
+    scrape attempts per Dask worker: {'worker-1': 9, 'worker-2': 10, 'worker-3': 10}
+
+Screenshot taken during run 'calculating-ammonite': AC-04.2_dask-dashboard-during-run.png
+(Progress: total 28, scrape_flights 10/12, scrape_hotels 6/8, scrape_cars 4/8; all 3 workers processing.)
+Workers page: AC-04.2_dask-workers.png

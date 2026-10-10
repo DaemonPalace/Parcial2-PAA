@@ -1,0 +1,46 @@
+# AC-04.3 — Retries (transient) and permanent failure with partial success
+# $ prefect deployment run ingest-travel-offers/scheduled --param fail_attempts=1 --param break_source=booking_cars --watch
+# fail_attempts=1: every scrape task raises on attempt 1 -> Prefect retry policy (3 retries, exponential backoff 10/20/40 s, jitter 0.5)
+# break_source=booking_cars: Booking Cars is down for the whole run -> Failed after 4 attempts, the rest is still loaded
+flow run cuddly-perch (96059ea3-9356-45f9-a8bf-0708361ad94b) parameters={'fail_attempts': 1, 'break_source': 'booking_cars'} final state=Completed
+check_cluster-f0b                          Completed         1
+clean_batch-6b9                            Completed         1
+clean_batch-9c7                            Completed         1
+clean_batch-f20                            Completed         1
+scrape-cars-BOG-2026-10-17                 Failed            4
+scrape-cars-BOG-2026-10-24                 Failed            4
+scrape-cars-CTG-2026-10-17                 Failed            4
+scrape-cars-CTG-2026-10-24                 Failed            4
+scrape-cars-MDE-2026-10-17                 Failed            4
+scrape-cars-MDE-2026-10-24                 Failed            4
+scrape-cars-SMR-2026-10-17                 Failed            4
+scrape-cars-SMR-2026-10-24                 Failed            4
+scrape-flights-BOG-CTG-2026-10-17          Completed         2
+scrape-flights-BOG-CTG-2026-10-24          Completed         2
+scrape-flights-BOG-MDE-2026-10-17          Completed         2
+scrape-flights-BOG-MDE-2026-10-24          Completed         2
+scrape-flights-BOG-SMR-2026-10-17          Completed         2
+scrape-flights-BOG-SMR-2026-10-24          Completed         2
+scrape-flights-CTG-BOG-2026-10-17          Completed         2
+scrape-flights-CTG-BOG-2026-10-24          Completed         2
+scrape-flights-MDE-BOG-2026-10-17          Completed         2
+scrape-flights-MDE-BOG-2026-10-24          Completed         2
+scrape-flights-SMR-BOG-2026-10-17          Completed         2
+scrape-flights-SMR-BOG-2026-10-24          Completed         2
+scrape-hotels-BOG-2026-10-17               Completed         2
+scrape-hotels-BOG-2026-10-24               Completed         2
+scrape-hotels-CTG-2026-10-17               Completed         2
+scrape-hotels-CTG-2026-10-24               Completed         3
+scrape-hotels-MDE-2026-10-17               Completed         3
+scrape-hotels-MDE-2026-10-24               Completed         3
+scrape-hotels-SMR-2026-10-17               Completed         2
+scrape-hotels-SMR-2026-10-24               Completed         2
+upsert-735                                 Completed         1
+upsert-d00                                 Completed         1
+upsert-e41                                 Completed         1
+summary: {('scrape-cars', 'Failed'): 8, ('scrape-flights', 'Completed'): 12, ('upsert', 'Completed'): 3, ('scrape-hotels', 'Completed'): 8, ('clean_batch', 'Completed'): 3, ('check_cluster', 'Completed'): 1}
+
+# run summary (cars: 8 failed tasks, 0 rows; flights + hotels loaded)
+
+Note: scrape-hotels-{CTG-10-24, MDE-10-17, MDE-10-24} needed a 3rd attempt — attempt 2 hit a real Booking.com transient error, recovered by the same policy.
+Prefect UI timeline: AC-04.3_prefect-retries-and-failures.png (green = completed tasks, red = Booking Cars tasks failing through their retries).

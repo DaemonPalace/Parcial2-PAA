@@ -84,8 +84,13 @@ services:
     <<: *ingestion-image
     command: ["dask", "worker", "tcp://dask-scheduler:8786", "--name", "worker-1", "--nthreads", "1", "--memory-limit", "2GB", "--dashboard-address", ":8789"]
     shm_size: 1gb # Chromium needs more than Docker's default 64 MB /dev/shm
+    environment:
+      # upsert tasks run on the workers and write offers directly (brief §3.3)
+      DATABASE_URL: postgresql://ingestion_svc:${INGESTION_DB_PASSWORD}@postgres:5432/postgres
     depends_on:
       dask-scheduler:
+        condition: service_healthy
+      postgres:
         condition: service_healthy
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8789/health', timeout=2)"]

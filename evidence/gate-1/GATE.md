@@ -1,6 +1,6 @@
 # Gate G1 — Stages 00–03 — Gate report
 
-**Date:** 2026-10-09 · **Commits:** `1e656a0` (00) · `51cae23` (01) · `87c2843` (02) · stage-03 commit (this report is part of it) · **Status:** awaiting approval
+**Date:** 2026-10-09 · **Commits:** `1e656a0` (00) · `51cae23` (01) · `87c2843` (02) · stage-03 commit (this report is part of it) · **Status:** approved 2026-10-09
 
 ## Built
 
@@ -61,4 +61,4 @@
 - **Real-site scraping (Stage 04) is the biggest schedule risk.** If a site blocks the scraper, the seed data still makes the booking demo work (D-006).
 
 ## Approval
-- [ ] Approved by user — date: ____
+- [x] Approved by user — date: 2026-10-09

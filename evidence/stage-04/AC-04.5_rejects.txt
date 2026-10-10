@@ -1,0 +1,15 @@
+# AC-04.5 — Malformed records are rejected and counted (parser unit tests on real captured rows)
+# $ docker compose run --rm --no-deps ingestion python -m unittest discover -s tests -v
+test_car (test_clean.CleanTest.test_car) ... ok
+test_dedupe_keeps_cheapest (test_clean.CleanTest.test_dedupe_keeps_cheapest) ... ok
+test_digits_handles_both_thousand_separators (test_clean.CleanTest.test_digits_handles_both_thousand_separators) ... ok
+test_flight_label (test_clean.CleanTest.test_flight_label) ... ok
+test_flight_with_stops (test_clean.CleanTest.test_flight_with_stops) ... ok
+test_garbage_is_rejected_not_loaded (test_clean.CleanTest.test_garbage_is_rejected_not_loaded) ... ok
+test_hotel (test_clean.CleanTest.test_hotel) ... ok
+
+----------------------------------------------------------------------
+Ran 7 tests in 0.002s
+
+OK
+Live runs: rejected=0 in every category (see AC-04.1 / AC-04.4); 'rejected' and 'valid' are reported per category in every run summary and in the Prefect table artifact 'ingestion-summary'.

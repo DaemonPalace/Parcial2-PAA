@@ -504,8 +504,9 @@ flowchart LR
 
 - **Distribution:** every `scrape_*`, `clean_*`, `upsert_*` call is a Prefect task submitted with `.submit()`; `DaskTaskRunner(address="tcp://dask-scheduler:8786")` runs it as a Dask task on one of 3 workers — so the Dask dashboard shows the fan-out and Prefect shows the same tasks with states and retries (FR-02, FR-03, ADR-04).
 - **Workers:** 3 × `--nthreads 1` (one Chromium per worker at a time; memory-bounded).
-- **Sources (Q-08 a, real sites):** chosen in Stage 04's first task by a live spike, one per category, ranked by "loads in headless Chromium from this machine without a captcha". Candidates — flights: Google Flights; hotels: Booking.com; cars: Kayak / Rentalcars / Booking cars. Scraper code adapted from `PA-Taller1/scripts/main.py` (driver setup, anti-detection flags, safe extractors, COP price regex).
-- **Plan size (default):** 5 routes from BOG + 5 back, 3 dates; 6 cities × 3 stays for hotels and cars. Tunable via env (`INGEST_DATES`, `INGEST_ROUTES`).
+- **Sources (Q-08 a, real sites), chosen by a live spike (`evidence/stage-04/AC-04.0_source-spike.md`):** flights → **Google Flights** (parsed from each row's full-sentence `aria-label`); hotels → **Booking.com** (`data-testid="property-card"`); cars → **Booking.com Cars** (cards anchored on the supplier logo `img[alt^="Supplied by"]`). Kayak cars rendered but has only hashed classes; Rentalcars.com errored. Scraper code adapted from `PA-Taller1/scripts/main.py` (driver setup, anti-detection flags, lazy-load scroll, COP price parsing) — `ingestion/flows/scrapers.py`; parsing/validation in `ingestion/flows/clean.py`.
+- **Plan size (default):** 6 routes (BOG↔CTG, BOG↔MDE, BOG↔SMR) × 2 dates (+7, +14 days) for flights; the 4 cities × the same 2 dates × 3-night stays for hotels and cars = 28 scrape tasks, ~2.5 min on 3 workers. Tunable via env (`INGEST_ROUTES`, `INGEST_DAYS_AHEAD`, `INGEST_STAY_NIGHTS`). Searches outside the plan are served by seed offers.
+- **Failure injection (demo):** flow parameters `fail_attempts` (every scrape fails its first N attempts → retries) and `break_source` (`google_flights` | `booking` | `booking_cars` always fails → partial success).
 - **Schedule:** `flow.serve(cron=INGEST_CRON)`, default every 6 h; manual run = Prefect "Run" button or `triggerIngestion`.
 - **Inventory for scraped offers:** sites don't publish seat/room/car counts, so inserted offers get a simulated count (`INGEST_DEFAULT_INVENTORY`, default 5) — documented limitation (ADR-07).
 
@@ -513,7 +514,7 @@ flowchart LR
 
 | Task | Retries | Delay | Notes |
 |---|---|---|---|
-| `check_cluster` | 3 | 5 s | fails fast if fewer than 3 workers |
+| `check_cluster` | 3 | 5 s | fails if fewer than 3 workers have joined |
 | `scrape_*` | 3 | exponential backoff 10 / 20 / 40 s, jitter 0.5 | network, timeouts, blocked page, empty grid |
 | `clean_*` | 0 | — | pure function; bad rows rejected, not retried |
 | `upsert_*` | 2 | 5 s | DB transient errors |

@@ -1,0 +1,71 @@
+# AC-04.1 — Real-site ingestion: every run of deployment ingest-travel-offers/scheduled
+# (from the Prefect API: scripts/ingestion_report.py — table artifact 'ingestion-summary' + task logs per run)
+# Plan: 6 routes x 2 dates (flights) + 4 cities x 2 dates x 3-night stays (hotels, cars) = 28 scrape tasks/run
+
+## cherubic-goose  state=Completed  start=2026-10-10 00:29:47Z  duration=155s  auto_scheduled=False  params={}
+    {'kind': 'flights', 'scrape_tasks': 12, 'failed_tasks': 0, 'raw_rows': 399, 'rejected': 0, 'valid': 398, 'inserted': 398, 'updated': 0}
+    {'kind': 'hotels', 'scrape_tasks': 8, 'failed_tasks': 0, 'raw_rows': 250, 'rejected': 0, 'valid': 250, 'inserted': 250, 'updated': 0}
+    {'kind': 'cars', 'scrape_tasks': 8, 'failed_tasks': 0, 'raw_rows': 320, 'rejected': 0, 'valid': 223, 'inserted': 223, 'updated': 0}
+
+## calculating-ammonite  state=Completed  start=2026-10-10 00:33:42Z  duration=100s  auto_scheduled=False  params={}
+    {'kind': 'flights', 'scrape_tasks': 12, 'failed_tasks': 0, 'raw_rows': 398, 'rejected': 0, 'valid': 398, 'inserted': 0, 'updated': 398}
+    {'kind': 'hotels', 'scrape_tasks': 8, 'failed_tasks': 0, 'raw_rows': 158, 'rejected': 0, 'valid': 158, 'inserted': 44, 'updated': 114}
+    {'kind': 'cars', 'scrape_tasks': 8, 'failed_tasks': 0, 'raw_rows': 320, 'rejected': 0, 'valid': 223, 'inserted': 0, 'updated': 223}
+    scrape attempts per Dask worker: {'worker-1': 13, 'worker-2': 10, 'worker-3': 8}
+
+## cuddly-perch  state=Completed  start=2026-10-10 00:36:23Z  duration=389s  auto_scheduled=False  params={'fail_attempts': 1, 'break_source': 'booking_cars'}
+    {'kind': 'flights', 'scrape_tasks': 12, 'failed_tasks': 0, 'raw_rows': 398, 'rejected': 0, 'valid': 398, 'inserted': 0, 'updated': 398}
+    {'kind': 'hotels', 'scrape_tasks': 8, 'failed_tasks': 0, 'raw_rows': 150, 'rejected': 0, 'valid': 150, 'inserted': 19, 'updated': 131}
+    {'kind': 'cars', 'scrape_tasks': 8, 'failed_tasks': 8, 'raw_rows': 0, 'rejected': 0, 'valid': 0, 'inserted': 0, 'updated': 0}
+    scrape attempts per Dask worker: {'worker-1': 23, 'worker-2': 25, 'worker-3': 27}
+
+## delectable-taipan  state=Completed  start=2026-10-10 00:45:03Z  duration=144s  auto_scheduled=True  params={}
+    {'kind': 'flights', 'scrape_tasks': 12, 'failed_tasks': 0, 'raw_rows': 398, 'rejected': 0, 'valid': 398, 'inserted': 0, 'updated': 398}
+    {'kind': 'hotels', 'scrape_tasks': 8, 'failed_tasks': 0, 'raw_rows': 176, 'rejected': 0, 'valid': 176, 'inserted': 25, 'updated': 151}
+    {'kind': 'cars', 'scrape_tasks': 8, 'failed_tasks': 0, 'raw_rows': 320, 'rejected': 0, 'valid': 223, 'inserted': 0, 'updated': 223}
+    scrape attempts per Dask worker: {'worker-1': 9, 'worker-2': 9, 'worker-3': 10}
+
+## impossible-asp  state=Completed  start=2026-10-10 00:50:06Z  duration=143s  auto_scheduled=False  params={}
+    {'kind': 'flights', 'scrape_tasks': 12, 'failed_tasks': 0, 'raw_rows': 398, 'rejected': 0, 'valid': 398, 'inserted': 0, 'updated': 398}
+    {'kind': 'hotels', 'scrape_tasks': 8, 'failed_tasks': 0, 'raw_rows': 217, 'rejected': 0, 'valid': 217, 'inserted': 52, 'updated': 165}
+    {'kind': 'cars', 'scrape_tasks': 8, 'failed_tasks': 0, 'raw_rows': 320, 'rejected': 0, 'valid': 224, 'inserted': 1, 'updated': 223}
+    scrape attempts per Dask worker: {'worker-1': 9, 'worker-2': 10, 'worker-3': 10}
+
+# Offers in the DB by source
+  kind   |     source     | count |    last_scraped     
+---------+----------------+-------+---------------------
+ cars    | booking_cars   |   224 | 2026-10-10 00:52:29
+ cars    | seed           |  3780 | 2026-10-10 00:14:22
+ flights | google_flights |   398 | 2026-10-10 00:52:20
+ flights | seed           |  2700 | 2026-10-10 00:14:22
+ hotels  | booking        |   390 | 2026-10-10 00:52:22
+ hotels  | seed           |  3780 | 2026-10-10 00:14:22
+(6 rows)
+
+# Sample scraped rows (cheapest)
+ airline  |  route  |    depart_local     | duration_minutes | stops | price_cop 
+----------+---------+---------------------+------------------+-------+-----------
+ JetSMART | MDE-BOG | 2026-10-24 07:00:00 |               60 |     0 |     73350
+ Wingo    | MDE-BOG | 2026-10-24 11:37:00 |               58 |     0 |     85490
+ Wingo    | MDE-BOG | 2026-10-24 08:42:00 |               58 |     0 |     85490
+ LATAM    | MDE-BOG | 2026-10-24 05:10:00 |               60 |     0 |     85490
+(4 rows)
+
+         name         | city |  check_in  | check_out  | rating | price_total_cop 
+----------------------+------+------------+------------+--------+-----------------
+ Distrito Hostel      | SMR  | 2026-10-17 | 2026-10-20 |    8.7 |           78760
+ Rock Hostel Medellin | MDE  | 2026-10-17 | 2026-10-20 |    7.8 |           86400
+ Rock Hostel Medellin | MDE  | 2026-10-24 | 2026-10-27 |    7.8 |           89100
+ Bendito Hostels      | BOG  | 2026-10-24 | 2026-10-27 |    8.9 |           89700
+(4 rows)
+
+ vendor |     model     | category | city | pickup_date | dropoff_date | price_total_cop 
+--------+---------------+----------+------+-------------+--------------+-----------------
+ Budget | Kia Picanto   | small    | MDE  | 2026-10-17  | 2026-10-20   |          435720
+ Budget | Kia Picanto   | small    | MDE  | 2026-10-24  | 2026-10-27   |          435720
+ Budget | Chevrolet Joy | medium   | MDE  | 2026-10-17  | 2026-10-20   |          464460
+ Budget | Chevrolet Joy | medium   | MDE  | 2026-10-24  | 2026-10-27   |          464460
+(4 rows)
+
+# Parser fix found while collecting this evidence: Google uses U+00A0 between number and unit ('1 h 30 min'), so duration_minutes was NULL for runs 1-4. Fixed in clean.py + regression test; run 'impossible-asp' refreshed every row:
+google_flights rows with NULL duration_minutes: 0 of 398
