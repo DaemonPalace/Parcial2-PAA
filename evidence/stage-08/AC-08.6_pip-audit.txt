@@ -1,0 +1,29 @@
+# AC-08.6 — pip-audit 2.9.0 (PyPI advisory DB / OSV), run 2026-10-10T05:39:35Z in python:3.12-slim
+# $ pip-audit -r <service>/requirements.txt   (every requirements.txt is a fully pinned lockfile, incl. transitive deps)
+pip-audit 2.9.0
+== services/flights/requirements.txt
+exit 0
+No known vulnerabilities found
+== services/hotels/requirements.txt
+exit 0
+No known vulnerabilities found
+== services/cars/requirements.txt
+exit 0
+No known vulnerabilities found
+== services/orders-billing/requirements.txt
+exit 0
+No known vulnerabilities found
+== services/gateway/requirements.txt
+exit 0
+No known vulnerabilities found
+== ingestion/requirements.txt
+exit 0
+No known vulnerabilities found
+
+# Pinned packages audited per lockfile:
+services/cars/requirements.txt: 23
+services/flights/requirements.txt: 23
+services/gateway/requirements.txt: 36
+services/hotels/requirements.txt: 23
+services/orders-billing/requirements.txt: 111
+ingestion/requirements.txt: 131
