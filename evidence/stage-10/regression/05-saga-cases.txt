@@ -1,0 +1,98 @@
+
+### happy_path   chaos=None
+  [PASS] POST /orders -> 201 PENDING (order 0ed6ddc4-d137-48c5-b069-03dc0360c613, total 2,322,000 COP)
+      FORWARD    PAYMENT SUCCEEDED 
+      FORWARD    FLIGHT  SUCCEEDED 
+      FORWARD    HOTEL   SUCCEEDED 
+      FORWARD    CAR     SUCCEEDED 
+  [PASS] final status CONFIRMED (got CONFIRMED; reason: None)
+  [PASS] compensations in reverse order (none)
+  [PASS] inventory consistent (before {'FLIGHT': 5, 'HOTEL': 5, 'CAR': 5} after {'FLIGHT': 4, 'HOTEL': 4, 'CAR': 4})
+  [PASS] payment CHARGED (got CHARGED)
+
+### payment_fails   chaos={'failAt': 'PAYMENT'}
+  [PASS] POST /orders -> 201 PENDING (order f0409834-4e59-419c-a4c9-682d3c976c9a, total 1,894,000 COP)
+      FORWARD    PAYMENT FAILED    StepRejected: payment declined (chaos)
+  [PASS] final status REJECTED (got REJECTED; reason: PAYMENT: payment declined (chaos))
+  [PASS] compensations in reverse order (none)
+  [PASS] inventory consistent (before {'FLIGHT': 5, 'HOTEL': 5, 'CAR': 5} after {'FLIGHT': 5, 'HOTEL': 5, 'CAR': 5})
+  [PASS] payment None (got None)
+
+### flight_fails   chaos={'failAt': 'FLIGHT'}
+  [PASS] POST /orders -> 201 PENDING (order 792b01e9-827d-41f6-9946-233be93961d7, total 1,912,000 COP)
+      FORWARD    PAYMENT SUCCEEDED 
+      FORWARD    FLIGHT  FAILED    StepRejected: FLIGHT reservation 422: {"detail":"REJECTED"}
+      COMPENSATE FLIGHT  SUCCEEDED 
+      COMPENSATE PAYMENT SUCCEEDED 
+  [PASS] final status CANCELLED (got CANCELLED; reason: FLIGHT: FLIGHT reservation 422: {"detail":"REJECTED"})
+  [PASS] compensations in reverse order (FLIGHT -> PAYMENT)
+  [PASS] inventory consistent (before {'FLIGHT': 5, 'HOTEL': 5, 'CAR': 5} after {'FLIGHT': 5, 'HOTEL': 5, 'CAR': 5})
+  [PASS] payment REFUNDED (got REFUNDED)
+
+### hotel_fails   chaos={'failAt': 'HOTEL'}
+  [PASS] POST /orders -> 201 PENDING (order 92e5bbd4-9e5d-4d5b-9b6e-a67cf2ffbb1d, total 2,206,000 COP)
+      FORWARD    PAYMENT SUCCEEDED 
+      FORWARD    FLIGHT  SUCCEEDED 
+      FORWARD    HOTEL   FAILED    StepRejected: HOTEL reservation 422: {"detail":"REJECTED"}
+      COMPENSATE HOTEL   SUCCEEDED 
+      COMPENSATE FLIGHT  SUCCEEDED 
+      COMPENSATE PAYMENT SUCCEEDED 
+  [PASS] final status CANCELLED (got CANCELLED; reason: HOTEL: HOTEL reservation 422: {"detail":"REJECTED"})
+  [PASS] compensations in reverse order (HOTEL -> FLIGHT -> PAYMENT)
+  [PASS] inventory consistent (before {'FLIGHT': 5, 'HOTEL': 5, 'CAR': 5} after {'FLIGHT': 5, 'HOTEL': 5, 'CAR': 5})
+  [PASS] payment REFUNDED (got REFUNDED)
+
+### car_fails   chaos={'failAt': 'CAR'}
+  [PASS] POST /orders -> 201 PENDING (order 9ec17d5e-3e5b-4f04-9310-41f6c2664f1c, total 2,328,000 COP)
+      FORWARD    PAYMENT SUCCEEDED 
+      FORWARD    FLIGHT  SUCCEEDED 
+      FORWARD    HOTEL   SUCCEEDED 
+      FORWARD    CAR     FAILED    StepRejected: CAR reservation 422: {"detail":"REJECTED"}
+      COMPENSATE CAR     SUCCEEDED 
+      COMPENSATE HOTEL   SUCCEEDED 
+      COMPENSATE FLIGHT  SUCCEEDED 
+      COMPENSATE PAYMENT SUCCEEDED 
+  [PASS] final status CANCELLED (got CANCELLED; reason: CAR: CAR reservation 422: {"detail":"REJECTED"})
+  [PASS] compensations in reverse order (CAR -> HOTEL -> FLIGHT -> PAYMENT)
+  [PASS] inventory consistent (before {'FLIGHT': 5, 'HOTEL': 5, 'CAR': 5} after {'FLIGHT': 5, 'HOTEL': 5, 'CAR': 5})
+  [PASS] payment REFUNDED (got REFUNDED)
+
+### hotel_timeout   chaos={'failAt': 'HOTEL', 'mode': 'TIMEOUT'}
+  [PASS] POST /orders -> 201 PENDING (order e23e95b5-3fab-496f-b5d6-28240d86b21b, total 1,698,000 COP)
+      FORWARD    PAYMENT SUCCEEDED 
+      FORWARD    FLIGHT  SUCCEEDED 
+      FORWARD    HOTEL   FAILED    StepTimeout: HOTEL reservation: no confirmation after 5s
+      COMPENSATE HOTEL   SUCCEEDED 
+      COMPENSATE FLIGHT  SUCCEEDED 
+      COMPENSATE PAYMENT SUCCEEDED 
+  [PASS] final status CANCELLED (got CANCELLED; reason: HOTEL: HOTEL reservation: no confirmation after 5s)
+  [PASS] compensations in reverse order (HOTEL -> FLIGHT -> PAYMENT)
+  [PASS] inventory consistent (before {'FLIGHT': 5, 'HOTEL': 5, 'CAR': 5} after {'FLIGHT': 5, 'HOTEL': 5, 'CAR': 5})
+  [PASS] payment REFUNDED (got REFUNDED)
+
+### flaky_compensation   chaos={'failAt': 'CAR', 'flakyCompensation': True}
+  [PASS] POST /orders -> 201 PENDING (order 179dadec-16d4-4893-9fc3-7f242c94dee3, total 1,490,000 COP)
+      FORWARD    PAYMENT SUCCEEDED 
+      FORWARD    FLIGHT  SUCCEEDED 
+      FORWARD    HOTEL   SUCCEEDED 
+      FORWARD    CAR     FAILED    StepRejected: CAR reservation 422: {"detail":"REJECTED"}
+      COMPENSATE CAR     FAILED    HTTPStatusError: Server error '503 Service Unavailable' for url 'http://cars-svc:8000/rese
+      COMPENSATE CAR     SUCCEEDED 
+      COMPENSATE HOTEL   FAILED    HTTPStatusError: Server error '503 Service Unavailable' for url 'http://hotels-svc:8000/re
+      COMPENSATE HOTEL   SUCCEEDED 
+      COMPENSATE FLIGHT  FAILED    HTTPStatusError: Server error '503 Service Unavailable' for url 'http://flights-svc:8000/r
+      COMPENSATE FLIGHT  SUCCEEDED 
+      COMPENSATE PAYMENT SUCCEEDED 
+  [PASS] final status CANCELLED (got CANCELLED; reason: CAR: CAR reservation 422: {"detail":"REJECTED"})
+  [PASS] compensations in reverse order (CAR -> HOTEL -> FLIGHT -> PAYMENT)
+  [PASS] inventory consistent (before {'FLIGHT': 5, 'HOTEL': 5, 'CAR': 5} after {'FLIGHT': 5, 'HOTEL': 5, 'CAR': 5})
+  [PASS] payment REFUNDED (got REFUNDED)
+  [PASS] each cancel failed once, Prefect retried it (['CAR', 'HOTEL', 'FLIGHT'])
+
+### idempotent_retry   same idempotency_key sent 3x concurrently, then once more
+  [PASS] 3 concurrent requests -> one order (codes [200, 200, 201])
+  [PASS] replay after completion -> 200, same order, same final state (200 CONFIRMED)
+  [PASS] saga ran exactly once (one step each) (['PAYMENT', 'FLIGHT', 'HOTEL', 'CAR'])
+  [PASS] exactly one unit taken per offer 
+
+ALL CHECKS PASSED

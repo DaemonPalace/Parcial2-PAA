@@ -2,7 +2,7 @@
 
 **Source of truth for grading:** `context/Parcial 2 - Sistema de Reservas Turísticas.md` (copied from `../.context/`). This document turns that brief into a buildable, gated spec. If this document and the brief disagree, the brief wins and this document gets corrected.
 
-**Document status:** Stage 00 closed 2026-10-09 (all §9 questions answered). Gate G1 in progress.
+**Document status:** All stages built; G1–G4 approved, G5 awaiting approval.
 
 | Field | Value |
 |---|---|
@@ -122,8 +122,8 @@ Gates merged to 5 (D-007, deadline 2026-10-10). Each stage still gets its own co
 | G4 | 07 | GraphQL API Gateway | done | 2026-10-10 (G4 approved) |
 | G4 | 08 | Security by design | done | 2026-10-10 (G4 approved) |
 | G4 | 09 | Frontend | done | 2026-10-10 (G4 approved) |
-| G5 | 10 | End-to-end verification & demo script | in progress | |
-| G5 | 11 | Technical architecture document & delivery | not started | |
+| G5 | 10 | End-to-end verification & demo script | done — **G5 awaiting approval** | |
+| G5 | 11 | Technical architecture document & delivery | done — **G5 awaiting approval** | |
 
 Status values: `not started` · `open` · `in progress` · `awaiting gate` · `approved` · `reopened`.
 
@@ -864,6 +864,7 @@ Answer inline (fill the **Answer** column) or reply in chat. Blank = recommended
 
 | Date | Change |
 |---|---|
+| 2026-10-10 | G4 approved (incl. targeted design pass). Stages 10–11: clean-clone regression 9/9, demo script, architecture document (es) + PDF, secret scan; G5 report in `evidence/gate-5/GATE.md`. |
 | 2026-10-10 | G3 approved. Stages 07–09 built and verified (gateway, security, frontend; critical Next.js CVE found by npm audit and fixed); G4 report in `evidence/gate-4/GATE.md`. |
 | 2026-10-09 | G2 approved. Stages 05–06 built and verified (8 SAGA cases + crash recovery + reconciliation); G3 report in `evidence/gate-3/GATE.md`. |
 | 2026-10-09 | G1 approved. Stage 04 built and verified against real sites (Google Flights, Booking.com, Booking.com Cars); G2 report in `evidence/gate-2/GATE.md`. |

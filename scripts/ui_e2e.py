@@ -36,7 +36,8 @@ wait = WebDriverWait(d, 60)
 
 
 def shot(name):
-    d.save_screenshot(f"{OUT}/{name}.png")
+    if not d.save_screenshot(f"{OUT}/{name}.png"):  # returns False instead of raising
+        raise RuntimeError(f"could not write screenshot to {OUT}/{name}.png")
 
 
 def text_appears(t, timeout=90):

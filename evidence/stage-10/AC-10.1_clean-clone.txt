@@ -1,0 +1,24 @@
+# AC-10.1 — clean clone, zero manual steps (2026-10-10)
+1. Working stack stopped with `docker compose down -v` (volumes deleted), all wandersync-* images removed.
+2. `git clone` of HEAD into an empty directory, `cp .env.example .env`, `docker compose up -d --build --wait`.
+   (Docker BuildKit layer cache on this machine was reused; base images were already pulled.)
+
+ Container wandersync-hotels-svc-1 Healthy 
+ Container wandersync-orders-billing-svc-1 Healthy 
+ Container wandersync-frontend-1 Healthy 
+up exit=0 elapsed=57s
+
+cars-svc Up 27 seconds (healthy)
+dask-scheduler Up 32 seconds (healthy)
+dask-worker-1 Up 26 seconds (healthy)
+dask-worker-2 Up 26 seconds (healthy)
+dask-worker-3 Up 26 seconds (healthy)
+flights-svc Up 26 seconds (healthy)
+frontend Up 9 seconds (healthy)
+gateway Up 15 seconds (healthy)
+hotels-svc Up 27 seconds (healthy)
+ingestion Up 20 seconds (healthy)
+orders-billing-svc Up 21 seconds (healthy)
+postgres Up 32 seconds (healthy)
+prefect-server Up 33 seconds (healthy)
+13/13 containers healthy

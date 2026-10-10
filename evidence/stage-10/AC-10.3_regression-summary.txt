@@ -1,0 +1,33 @@
+# AC-10.3 — full regression in the clean clone: ./scripts/e2e_all.sh (all stages' acceptance checks)
+=== 01-containers-healthy
+    PASS
+    13/13 containers healthy
+=== 02-ingestion-real-sites
+    PASS
+        scrape attempts per Dask worker: {'worker-1': 9, 'worker-2': 9, 'worker-3': 10}
+=== 03-ingestion-parser-tests
+    PASS
+    OK
+=== 04-participants
+    PASS
+    ALL CHECKS PASSED
+=== 05-saga-cases
+    PASS
+    ALL CHECKS PASSED
+=== 06-reconciliation
+    PASS
+    (5 rows)
+=== 07-gateway-security
+    PASS
+    ALL CHECKS PASSED
+=== 08-browser-e2e
+    PASS
+    ALL CHECKS PASSED
+=== 09-reconciliation-final
+    PASS
+    (5 rows)
+
+REGRESSION: ALL PASSED
+exit 0
+
+Per-step outputs: regression/*.txt, browser screenshots: regression/*.png

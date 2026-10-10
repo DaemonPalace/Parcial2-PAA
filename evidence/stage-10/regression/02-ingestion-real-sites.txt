@@ -1,0 +1,8 @@
+●         .620 4cd53788ccf2 prefect.artifact.created * ingestion-summary
+●         .638 4cd53788ccf2 prefect.flow-run.Completed * rebel-chital
+Flow run finished successfully in 'Completed'.
+## rebel-chital  state=Completed  start=2026-10-10 06:23:04Z  duration=63s  auto_scheduled=False  params={}
+    {'kind': 'flights', 'scrape_tasks': 12, 'failed_tasks': 0, 'raw_rows': 398, 'rejected': 0, 'valid': 398, 'inserted': 398, 'updated': 0}
+    {'kind': 'hotels', 'scrape_tasks': 8, 'failed_tasks': 0, 'raw_rows': 289, 'rejected': 0, 'valid': 289, 'inserted': 289, 'updated': 0}
+    {'kind': 'cars', 'scrape_tasks': 8, 'failed_tasks': 0, 'raw_rows': 305, 'rejected': 0, 'valid': 211, 'inserted': 211, 'updated': 0}
+    scrape attempts per Dask worker: {'worker-1': 9, 'worker-2': 9, 'worker-3': 10}

@@ -35,8 +35,9 @@ run 06-reconciliation bash -c '
   ! echo "$out" | grep -E "\|\s+[1-9][0-9]*$"'
 run 07-gateway-security python3 -I scripts/test_gateway.py
 sleep 61  # leave the login rate-limit window the gateway suite just used
-run 08-browser-e2e docker run --rm --network host --shm-size=1g -v "$PWD:/w:z" -w /w --entrypoint python \
-    wandersync-ingestion scripts/ui_e2e.py "$OUT" "$ADMIN_EMAIL" "$ADMIN_PASSWORD"
+OUT_ABS=$(cd "$OUT" && pwd)
+run 08-browser-e2e docker run --rm --network host --shm-size=1g -v "$PWD:/w:z" -v "$OUT_ABS:/out:z" -w /w --entrypoint python \
+    wandersync-ingestion scripts/ui_e2e.py /out "$ADMIN_EMAIL" "$ADMIN_PASSWORD"
 run 09-reconciliation-final bash -c '
   out=$(docker compose exec -T postgres psql -U supabase_admin -d postgres -f - < scripts/reconcile.sql); echo "$out"
   ! echo "$out" | grep -E "\|\s+[1-9][0-9]*$"'

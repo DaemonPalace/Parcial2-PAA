@@ -1,0 +1,17 @@
+# AC-10.4 — resources during ingestion (docker stats snapshot, 3 Chromium scrapers active)
+NAME                              CPU %     MEM USAGE / LIMIT
+frontend-1             0.00%     33.35MiB / 23.12GiB
+gateway-1              0.07%     52.55MiB / 23.12GiB
+ingestion-1            6.75%     320.6MiB / 23.12GiB
+orders-billing-svc-1   0.09%     84.67MiB / 23.12GiB
+dask-worker-2-1        10.38%    115.8MiB / 23.12GiB
+cars-svc-1             8.66%     42.23MiB / 23.12GiB
+dask-worker-3-1        3.18%     115.9MiB / 23.12GiB
+dask-worker-1-1        105.42%   185.3MiB / 23.12GiB
+flights-svc-1          0.08%     41.63MiB / 23.12GiB
+hotels-svc-1           0.08%     41.88MiB / 23.12GiB
+postgres-1             0.01%     61.78MiB / 23.12GiB
+prefect-server-1       5.00%     218.3MiB / 23.12GiB
+dask-scheduler-1       2.46%     128MiB / 23.12GiB
+               total        used        free      shared  buff/cache   available
+Mem:           23678       10753        3644        1292       10970       12925

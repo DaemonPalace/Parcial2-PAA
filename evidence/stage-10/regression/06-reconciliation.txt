@@ -1,0 +1,8 @@
+                               check                               | violations 
+-------------------------------------------------------------------+------------
+ orders not in a terminal state                                    |          0
+ orphan reservations (RESERVED for an order that is not CONFIRMED) |          0
+ retained charges (CHARGED for an order that is not CONFIRMED)     |          0
+ CONFIRMED orders missing a reservation or the charge              |          0
+ held units (RESERVED) with no order at all                        |          0
+(5 rows)
