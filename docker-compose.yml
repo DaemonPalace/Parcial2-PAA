@@ -33,10 +33,12 @@ services:
   postgres:
     image: supabase/postgres:15.14.1.170
     networks: [wandersync-net]
-    environment:
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    env_file: .env  # role passwords read by db/01_schema.sql via \getenv
     volumes:
       - pg-data:/var/lib/postgresql/data
+      # Run once on an empty volume, after Supabase's own migrations (sorted by name).
+      - ./db/01_schema.sql:/docker-entrypoint-initdb.d/migrations/99990000000001_wandersync_schema.sql:ro,z
+      - ./db/02_seed.sql:/docker-entrypoint-initdb.d/migrations/99990000000002_wandersync_seed.sql:ro,z
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres", "-h", "localhost"]
       interval: 5s
@@ -105,6 +107,7 @@ services:
     environment:
       PREFECT_API_URL: http://prefect-server:4200/api
       DASK_SCHEDULER_ADDRESS: tcp://dask-scheduler:8786
+      DATABASE_URL: postgresql://ingestion_svc:${INGESTION_DB_PASSWORD}@postgres:5432/postgres
       PREFECT_RUNNER_SERVER_ENABLE: "true"
       PREFECT_RUNNER_SERVER_HOST: 0.0.0.0
     depends_on:
@@ -128,6 +131,8 @@ services:
   flights-svc:
     <<: *service
     build: { context: ./services, dockerfile: flights/Dockerfile }
+    environment:
+      DATABASE_URL: postgresql://flights_svc:${FLIGHTS_DB_PASSWORD}@postgres:5432/postgres
     depends_on:
       postgres:
         condition: service_healthy
@@ -135,6 +140,8 @@ services:
   hotels-svc:
     <<: *service
     build: { context: ./services, dockerfile: hotels/Dockerfile }
+    environment:
+      DATABASE_URL: postgresql://hotels_svc:${HOTELS_DB_PASSWORD}@postgres:5432/postgres
     depends_on:
       postgres:
         condition: service_healthy
@@ -142,6 +149,8 @@ services:
   cars-svc:
     <<: *service
     build: { context: ./services, dockerfile: cars/Dockerfile }
+    environment:
+      DATABASE_URL: postgresql://cars_svc:${CARS_DB_PASSWORD}@postgres:5432/postgres
     depends_on:
       postgres:
         condition: service_healthy
@@ -150,6 +159,7 @@ services:
     <<: *service
     build: { context: ./services, dockerfile: orders-billing/Dockerfile }
     environment:
+      DATABASE_URL: postgresql://orders_svc:${ORDERS_DB_PASSWORD}@postgres:5432/postgres
       PREFECT_API_URL: http://prefect-server:4200/api
     depends_on:
       postgres:
@@ -169,6 +179,7 @@ services:
     <<: *service
     build: { context: ./services, dockerfile: gateway/Dockerfile }
     environment:
+      DATABASE_URL: postgresql://gateway_svc:${GATEWAY_DB_PASSWORD}@postgres:5432/postgres
       PREFECT_API_URL: http://prefect-server:4200/api
     ports:
       - "127.0.0.1:8000:8000"

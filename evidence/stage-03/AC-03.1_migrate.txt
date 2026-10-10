@@ -1,0 +1,48 @@
+# AC-03.1 — migrations applied automatically on an empty volume (docker compose down -v && up -d)
+[local] 2026-10-10 00:11:32.397 UTC [78] postgres@postgres LOG:  statement: ALTER USER supabase_admin WITH PASSWORD 'wandersync_local_pw'
+/docker-entrypoint-initdb.d/migrate.sh: running /docker-entrypoint-initdb.d/migrations/99990000000001_wandersync_schema.sql
+/docker-entrypoint-initdb.d/migrate.sh: running /docker-entrypoint-initdb.d/migrations/99990000000002_wandersync_seed.sql
+
+$ \dn (owners)
+      Name      |       Owner       
+----------------+-------------------
+ accounts       | gateway_svc
+ cars           | cars_svc
+ catalog        | supabase_admin
+ flights        | flights_svc
+ hotels         | hotels_svc
+ orders         | orders_svc
+$ tables per schema
+ table_schema |     table_name      | table_type 
+--------------+---------------------+------------
+ accounts     | sessions            | BASE TABLE
+ accounts     | users               | BASE TABLE
+ cars         | car_offers          | BASE TABLE
+ cars         | car_reservations    | BASE TABLE
+ catalog      | car_offers          | VIEW
+ catalog      | flight_offers       | VIEW
+ catalog      | hotel_offers        | VIEW
+ flights      | flight_offers       | BASE TABLE
+ flights      | flight_reservations | BASE TABLE
+ hotels       | hotel_offers        | BASE TABLE
+ hotels       | hotel_reservations  | BASE TABLE
+ orders       | orders              | BASE TABLE
+ orders       | payments            | BASE TABLE
+ orders       | saga_steps          | BASE TABLE
+(14 rows)
+
+$ seed row counts
+    t    | count 
+---------+-------
+ flights |  2700
+ hotels  |  3780
+ cars    |  3780
+(3 rows)
+
+
+# Every service's /health connects with its OWN DB role (DATABASE_URL per service)
+flights-svc: {"service":"flights","status":"ok"} | role: flights_svc
+hotels-svc: {"service":"hotels","status":"ok"} | role: hotels_svc
+cars-svc: {"service":"cars","status":"ok"} | role: cars_svc
+orders-billing-svc: {"service":"orders-billing","status":"ok"} | role: orders_svc
+gateway: {"service":"gateway","status":"ok"} | role: gateway_svc

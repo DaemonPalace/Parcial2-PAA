@@ -1,0 +1,27 @@
+# AC-02.1 / AC-02.5 — clean clone, no manual steps
+$ git clone <repo> && cd clone && git log --oneline -1
+8969c32 feat(stage-03): schema per service, least-privilege roles, pg_graphql catalog, seed data
+$ cp .env.example .env
+$ docker compose up -d --build --wait   (Docker layer cache from earlier builds on this machine was reused; not a cold-cache machine)
+exit=0 elapsed=27s
+$ docker compose ps
+SERVICE              STATUS
+cars-svc             Up 17 seconds (healthy)
+dask-scheduler       Up 23 seconds (healthy)
+dask-worker-1        Up 17 seconds (healthy)
+dask-worker-2        Up 17 seconds (healthy)
+dask-worker-3        Up 18 seconds (healthy)
+flights-svc          Up 17 seconds (healthy)
+gateway              Up 5 seconds (healthy)
+hotels-svc           Up 17 seconds (healthy)
+ingestion            Up 12 seconds (healthy)
+orders-billing-svc   Up 11 seconds (healthy)
+postgres             Up 23 seconds (healthy)
+prefect-server       Up 23 seconds (healthy)
+$ seed visible through pg_graphql as gateway_svc
+{"data": {"flightOffersCollection": {"edges": [{"node": {"origin": "BOG", "airline": "Avianca", "priceCop": 288000, "destination": "MDE"}}]}}}
+$ prefect deployment run ingest-travel-offers/scheduled --watch   (Prefect -> Dask)
+Flow run finished successfully in 'Completed'.
+# second cycle: down -v && up -d --wait (repeatable)
+exit=0
+12 containers healthy

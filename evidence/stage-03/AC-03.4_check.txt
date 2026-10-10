@@ -1,0 +1,7 @@
+# AC-03.4 — inventory can't go negative (CHECK constraint), as the owning role
+ERROR:  new row for relation "flight_offers" violates check constraint "flight_offers_seats_available_check"
+DETAIL:  Failing row contains (1, seed, Avianca, BOG, MDE, 2026-10-11 11:00:00+00, 2026-10-11 12:27:00+00, 87, 0, 288000, -1, 2026-10-10 00:11:33.133174+00).
+ERROR:  new row for relation "hotel_offers" violates check constraint "hotel_offers_rooms_available_check"
+DETAIL:  Failing row contains (1, seed, Hotel Plaza Bogotá, BOG, 2026-10-11, 2026-10-12, 8.0, 212000, null, -1, 2026-10-10 00:11:33.156389+00).
+ERROR:  new row for relation "car_offers" violates check constraint "car_offers_units_available_check"
+DETAIL:  Failing row contains (1, seed, Localiza, Kia Picanto, Económico, BOG, 2026-10-11, 2026-10-12, 121000, -1, 2026-10-10 00:11:33.18391+00).

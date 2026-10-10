@@ -115,7 +115,7 @@ Gates merged to 5 (D-007, deadline 2026-10-10). Each stage still gets its own co
 | G1 | 00 | Decisions & repo bootstrap | **done** (closed by user 2026-10-09) | |
 | G1 | 01 | Architecture & design spec | done (in G1) | |
 | G1 | 02 | Infrastructure skeleton (Docker Compose) | done (in G1) | |
-| G1 | 03 | Persistence & GraphQL-native data layer | in progress | |
+| G1 | 03 | Persistence & GraphQL-native data layer | done — **G1 awaiting approval** | |
 | G2 | 04 | Scraping + Dask + Prefect ingestion | not started | |
 | G3 | 05 | Domain microservices | not started | |
 | G3 | 06 | SAGA orchestration (Prefect) | not started | |
@@ -864,6 +864,7 @@ Answer inline (fill the **Answer** column) or reply in chat. Blank = recommended
 
 | Date | Change |
 |---|---|
+| 2026-10-09 | Stages 01–03 built and verified; G1 gate report in `evidence/gate-1/GATE.md`. |
 | 2026-10-09 | Stage 00 closed (D-009). |
 | 2026-10-09 | D-007 5-gate grouping; D-008 gateway + chaos clarified. |
 | 2026-10-09 | Stage 00 answers applied (D-003–D-006); §6 architecture trimmed to minimum containers. |

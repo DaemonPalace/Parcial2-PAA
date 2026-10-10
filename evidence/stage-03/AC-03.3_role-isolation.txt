@@ -1,0 +1,55 @@
+# AC-03.3 — role isolation (each line must be a permission error)
+## flights_svc reads hotels schema
+ERROR:  permission denied for schema hotels
+LINE 1: select count(*) from hotels.hotel_offers
+                             ^
+## hotels_svc writes flights inventory
+ERROR:  permission denied for schema flights
+LINE 1: update flights.flight_offers set seats_available = 0
+               ^
+## orders_svc reads accounts.users
+ERROR:  permission denied for schema accounts
+LINE 1: select * from accounts.users
+                      ^
+## gateway_svc reads flights base table (must use catalog views)
+ERROR:  permission denied for schema flights
+LINE 1: select count(*) from flights.flight_offers
+                             ^
+## gateway_svc writes through catalog view
+ERROR:  permission denied for view flight_offers
+## ingestion_svc overwrites inventory (only price/time/scraped_at are updatable)
+ERROR:  permission denied for table flight_offers
+## ingestion_svc reads orders
+ERROR:  permission denied for schema orders
+LINE 1: select count(*) from orders.orders
+                             ^
+
+# Positive controls (must succeed)
+## ingestion_svc upserts an offer (insert + ON CONFLICT update of price)
+  id  | price_cop | seats_available 
+------+-----------+-----------------
+ 2701 |    100000 |               5
+(1 row)
+
+INSERT 0 1
+  id  | price_cop | seats_available 
+------+-----------+-----------------
+ 2701 |    120000 |               5
+(1 row)
+
+INSERT 0 1
+## flights_svc reads its own schema
+ count 
+-------
+  2701
+(1 row)
+
+
+# GraphQL surface of gateway_svc: accounts (password hashes, sessions) is NOT reachable through pg_graphql
+# (introspection is off in this pg_graphql build, so probe the fields directly)
+## { usersCollection(first: 1) { edges { node { __typename } } } }
+{"data": null, "errors": [{"message": "Unknown field \"usersCollection\" on type Query"}]}
+## { sessionsCollection(first: 1) { edges { node { __typename } } } }
+{"data": null, "errors": [{"message": "Unknown field \"sessionsCollection\" on type Query"}]}
+## { flightOffersCollection(first: 1) { edges { node { __typename } } } }
+{"data": {"flightOffersCollection": {"edges": [{"node": {"__typename": "FlightOffers"}}]}}}

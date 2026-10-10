@@ -1,0 +1,63 @@
+# AC-03.2 — native GraphQL (pg_graphql graphql.resolve) as gateway_svc: one query, three collections, only requested columns
+{
+    "data": {
+        "cars": {
+            "edges": [
+                {
+                    "node": {
+                        "id": "1192",
+                        "model": "Kia Picanto",
+                        "vendor": "Localiza",
+                        "priceTotalCop": 432000
+                    }
+                },
+                {
+                    "node": {
+                        "id": "1204",
+                        "model": "Chevrolet Onix",
+                        "vendor": "Budget",
+                        "priceTotalCop": 572000
+                    }
+                }
+            ]
+        },
+        "hotels": {
+            "edges": [
+                {
+                    "node": {
+                        "id": "1192",
+                        "name": "Hotel Plaza Cartagena",
+                        "priceTotalCop": 716000
+                    }
+                },
+                {
+                    "node": {
+                        "id": "1198",
+                        "name": "Casa Boutique Cartagena",
+                        "priceTotalCop": 1544000
+                    }
+                }
+            ]
+        },
+        "flights": {
+            "edges": [
+                {
+                    "node": {
+                        "id": "189",
+                        "airline": "Wingo",
+                        "departAt": "2026-10-13T22:30:00+00:00",
+                        "priceCop": 270000
+                    }
+                },
+                {
+                    "node": {
+                        "id": "278",
+                        "airline": "LATAM",
+                        "departAt": "2026-10-14T16:00:00+00:00",
+                        "priceCop": 271000
+                    }
+                }
+            ]
+        }
+    }
+}
